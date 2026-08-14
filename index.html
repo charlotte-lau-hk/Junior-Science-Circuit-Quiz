@@ -877,7 +877,7 @@
             en: inSeries ? "A Voltmeter has extremely high resistance (~10MΩ). Connected in SERIES, it blocks current completely." : "The Voltmeter is correctly connected in PARALLEL. Its high resistance does not affect current through Bulb X."
           };
         } else {
-          // Ammeter: When inSeries is FALSE, Ammeter is connected in PARALLEL (from Node 2 to 0), shorting Bulb X!
+          // Ammeter
           q.nodesCount = inSeries ? 4 : 3;
           q.components = [
             { id: 'cell1', type: 'cell', from: 0, to: 1, x: 250, y: 250, rot: 0, voltage: 1.5, label: 'Cell' },
@@ -1013,18 +1013,26 @@
 
       const { voltages, currents } = solveCircuit(question.nodesCount, liveComponents);
 
-      // 3. Draw Animated Current Flow Paths ONLY on branches that carry active current (>0.035A)
+      // Helper to evaluate effective branch current with ideal short circuit voltage drop check
+      function getEffectiveCurrent(comp) {
+        if (!comp) return 0;
+        let vDiff = Math.abs(voltages[comp.from] - voltages[comp.to]);
+        let compI = Math.abs(currents[comp.id] || 0);
+
+        // If voltage drop across load is essentially 0V (< 0.001V), branch is shorted!
+        if (comp.type === 'bulb' && vDiff < 0.001) return 0;
+        return compI;
+      }
+
+      // 3. Draw Animated Current Flow Paths ONLY on branches carrying active current (>= 0.035A)
       if (showAnimation) {
         question.layoutWires.forEach((w) => {
           let hasCurrent = false;
           if (w.compId) {
             let comp = liveComponents.find(c => c.id === w.compId);
             if (comp) {
-              let compI = Math.abs(currents[comp.id] || 0);
-              // Handle parallel short circuit across bulb
-              let vDiff = Math.abs(voltages[comp.from] - voltages[comp.to]);
-              if (comp.type === 'bulb' && vDiff < 0.01) compI = 0;
-              hasCurrent = compI >= 0.035;
+              let compI = getEffectiveCurrent(comp);
+              hasCurrent = (compI >= 0.035);
             }
           }
 
@@ -1054,11 +1062,8 @@
         const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
         g.setAttribute("transform", `translate(${comp.x}, ${comp.y}) rotate(${comp.rot || 0})`);
 
-        let compI = Math.abs(currents[comp.id] || 0);
-        let vDiff = Math.abs(voltages[comp.from] - voltages[comp.to]);
-        if (comp.type === 'bulb' && vDiff < 0.01) compI = 0;
-
-        const bulbLitState = showAnimation ? (compI >= 0.035) : false;
+        let effI = getEffectiveCurrent(comp);
+        const bulbLitState = showAnimation ? (effI >= 0.035) : false;
 
         if (comp.type === 'cell') {
           drawCellSVG(g, comp);
@@ -1232,7 +1237,7 @@
       let targetI = targetComp ? Math.abs(currents[targetComp.id] || 0) : 0;
       if (targetComp) {
         let vDiff = Math.abs(voltages[targetComp.from] - voltages[targetComp.to]);
-        if (vDiff < 0.01) targetI = 0;
+        if (vDiff < 0.001) targetI = 0;
       }
 
       const actualIsLit = (targetI >= 0.035);
@@ -1300,12 +1305,12 @@
         const btn = document.createElement('button');
         btn.className = 'btn-toggle-switch';
         const isCurrentlyOpen = liveSwitches[sw.id];
-        btn.innerText = `${t.toggleSwitch.replace('{name}', sw.label || sw.id)} (${isCurrentlyOpen ? '斷開 OFF' : '通電 ON'})`;
+        btn.innerText = `${t.toggleSwitch.replace('{name}', sw.label || sw.id)} (${isCurrentlyOpen ? '通電 ON' : '斷開 OFF'})`;
         
         btn.onclick = () => {
           liveSwitches[sw.id] = !liveSwitches[sw.id];
           const newIsOpen = liveSwitches[sw.id];
-          btn.innerText = `${t.toggleSwitch.replace('{name}', sw.label || sw.id)} (${newIsOpen ? '斷開 OFF' : '通電 ON'})`;
+          btn.innerText = `${t.toggleSwitch.replace('{name}', sw.label || sw.id)} (${newIsOpen ? '通電 ON' : '斷開 OFF'})`;
           
           const svgEl = document.getElementById('circuit-svg');
           renderCircuitSVG(svgEl, q, liveSwitches, true);
