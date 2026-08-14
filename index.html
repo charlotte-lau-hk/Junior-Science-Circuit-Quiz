@@ -627,14 +627,14 @@
         let v = comp.to;
 
         let R = 0.01;
-        if (comp.type === 'switch') R = comp.isOpen ? 1e8 : 0.001;
+        if (comp.type === 'switch') R = comp.isOpen ? 1e8 : 1e-6;
         else if (comp.type === 'bulb') R = 10;
         else if (comp.type === 'resistor') R = 20;
         else if (comp.type === 'rheostat') R = comp.resistance !== undefined ? comp.resistance : 500;
-        else if (comp.type === 'ammeter') R = 0.001;
+        else if (comp.type === 'ammeter') R = 1e-6; // Parallel ammeter acts as ideal short circuit
         else if (comp.type === 'voltmeter') R = 1e7;
-        else if (comp.type === 'wire') R = 0.001;
-        else if (comp.type === 'cell') R = 0.001;
+        else if (comp.type === 'wire') R = 1e-6;
+        else if (comp.type === 'cell') R = 1e-6;
 
         let g = 1 / R;
         let E = (comp.type === 'cell') ? (comp.voltage !== undefined ? comp.voltage : 1.5) : 0;
@@ -693,14 +693,14 @@
         let Vv = V[comp.to];
         let E = (comp.type === 'cell') ? (comp.voltage !== undefined ? comp.voltage : 1.5) : 0;
         let R = 0.01;
-        if (comp.type === 'switch') R = comp.isOpen ? 1e8 : 0.001;
+        if (comp.type === 'switch') R = comp.isOpen ? 1e8 : 1e-6;
         else if (comp.type === 'bulb') R = 10;
         else if (comp.type === 'resistor') R = 20;
         else if (comp.type === 'rheostat') R = comp.resistance !== undefined ? comp.resistance : 500;
-        else if (comp.type === 'ammeter') R = 0.001;
+        else if (comp.type === 'ammeter') R = 1e-6;
         else if (comp.type === 'voltmeter') R = 1e7;
-        else if (comp.type === 'wire') R = 0.001;
-        else if (comp.type === 'cell') R = 0.001;
+        else if (comp.type === 'wire') R = 1e-6;
+        else if (comp.type === 'cell') R = 1e-6;
 
         let I = (Vu - Vv + E) / R;
         currents[comp.id] = I;
@@ -788,7 +788,7 @@
             en: s1Open ? "In a series circuit, an open switch breaks the entire single loop, so Bulb X stays off." : "All components are connected in series in a complete loop, allowing current to flow through Bulb X."
           };
         } else {
-          // Parallel Circuit - Nodes: 0 (Ground/Right Rail), 1 (Cell+), 2 (Left Junction), 3 (S2 Top Branch)
+          // Parallel Circuit
           q.nodesCount = 4;
           q.components = [
             { id: 'cell1', type: 'cell', from: 0, to: 1, x: 250, y: 250, rot: 0, voltage: 1.5, label: 'Cell' },
@@ -802,7 +802,8 @@
             { compId: 'sw1', d: "M 100 250 L 100 150" },
             { compId: 'bulbX', d: "M 100 150 L 400 150" },
             { compId: 'sw2', d: "M 100 150 L 100 60 L 260 60" },
-            { compId: 'bulbY', d: "M 260 60 L 400 60 L 400 150" }
+            { compId: 'bulbY', d: "M 260 60 L 400 60 L 400 150" },
+            { compId: 'cell1', d: "M 400 150 L 400 250" }
           ];
           q.junctions = [
             { x: 100, y: 150 },
@@ -829,7 +830,8 @@
           { compId: 'cell1', d: "M 100 250 L 400 250" },
           { compId: 'sw1', d: "M 100 250 L 100 150" },
           { compId: 'bulbX', d: "M 100 150 L 400 150" },
-          { compId: 'swShort', d: "M 100 150 L 100 60 L 400 60 L 400 150" }
+          { compId: 'swShort', d: "M 100 150 L 100 60 L 400 60 L 400 150" },
+          { compId: 'cell1', d: "M 400 150 L 400 250" }
         ];
         q.junctions = [
           { x: 100, y: 150 },
@@ -863,7 +865,8 @@
             { compId: 'cell1', d: "M 100 250 L 400 250" },
             { compId: 'sw1', d: "M 100 250 L 100 150" },
             { compId: 'bulbX', d: "M 100 150 L 400 150" },
-            { compId: 'meter1', d: "M 100 150 L 100 60 L 400 60 L 400 150" }
+            { compId: 'meter1', d: "M 100 150 L 100 60 L 400 60 L 400 150" },
+            { compId: 'cell1', d: "M 400 150 L 400 250" }
           ];
           q.junctions = inSeries ? [] : [
             { x: 100, y: 150 },
@@ -874,24 +877,25 @@
             en: inSeries ? "A Voltmeter has extremely high resistance (~10MΩ). Connected in SERIES, it blocks current completely." : "The Voltmeter is correctly connected in PARALLEL. Its high resistance does not affect current through Bulb X."
           };
         } else {
-          // Ammeter
+          // Ammeter: When inSeries is FALSE, Ammeter is connected in PARALLEL (from Node 2 to 0), shorting Bulb X!
           q.nodesCount = inSeries ? 4 : 3;
           q.components = [
             { id: 'cell1', type: 'cell', from: 0, to: 1, x: 250, y: 250, rot: 0, voltage: 1.5, label: 'Cell' },
             { id: 'sw1', type: 'switch', from: 1, to: 2, x: 100, y: inSeries ? 150 : 200, rot: 90, isOpen: false, label: 'S1' },
-            { id: 'bulbX', type: 'bulb', from: 2, to: inSeries ? 3 : 0, x: inSeries ? 200 : 250, y: inSeries ? 60 : 150, rot: 0, isTarget: true, label: 'Bulb X' },
-            { id: 'meter1', type: 'ammeter', from: inSeries ? 3 : 2, to: 0, x: inSeries ? 340 : 250, y: inSeries ? 60 : 60, rot: 0, label: 'Ammeter (A)' }
+            { id: 'bulbX', type: 'bulb', from: inSeries ? 3 : 2, to: 0, x: inSeries ? 340 : 250, y: inSeries ? 60 : 150, rot: 0, isTarget: true, label: 'Bulb X' },
+            { id: 'meter1', type: 'ammeter', from: inSeries ? 2 : 2, to: inSeries ? 3 : 0, x: inSeries ? 200 : 250, y: inSeries ? 60 : 60, rot: 0, label: 'Ammeter (A)' }
           ];
           q.layoutWires = inSeries ? [
             { compId: 'cell1', d: "M 100 250 L 400 250" },
             { compId: 'sw1', d: "M 100 250 L 100 60" },
-            { compId: 'bulbX', d: "M 100 60 L 270 60" },
-            { compId: 'meter1', d: "M 270 60 L 400 60 L 400 250" }
+            { compId: 'meter1', d: "M 100 60 L 270 60" },
+            { compId: 'bulbX', d: "M 270 60 L 400 60 L 400 250" }
           ] : [
             { compId: 'cell1', d: "M 100 250 L 400 250" },
             { compId: 'sw1', d: "M 100 250 L 100 150" },
             { compId: 'bulbX', d: "M 100 150 L 400 150" },
-            { compId: 'meter1', d: "M 100 150 L 100 60 L 400 60 L 400 150" }
+            { compId: 'meter1', d: "M 100 150 L 100 60 L 400 60 L 400 150" },
+            { compId: 'cell1', d: "M 400 150 L 400 250" }
           ];
           q.junctions = inSeries ? [] : [
             { x: 100, y: 150 },
@@ -1007,16 +1011,21 @@
         return c;
       });
 
-      const { currents } = solveCircuit(question.nodesCount, liveComponents);
+      const { voltages, currents } = solveCircuit(question.nodesCount, liveComponents);
 
       // 3. Draw Animated Current Flow Paths ONLY on branches that carry active current (>0.035A)
       if (showAnimation) {
         question.layoutWires.forEach((w) => {
           let hasCurrent = false;
           if (w.compId) {
-            hasCurrent = Math.abs(currents[w.compId] || 0) >= 0.035;
-          } else if (w.compIds) {
-            hasCurrent = w.compIds.some(id => Math.abs(currents[id] || 0) >= 0.035);
+            let comp = liveComponents.find(c => c.id === w.compId);
+            if (comp) {
+              let compI = Math.abs(currents[comp.id] || 0);
+              // Handle parallel short circuit across bulb
+              let vDiff = Math.abs(voltages[comp.from] - voltages[comp.to]);
+              if (comp.type === 'bulb' && vDiff < 0.01) compI = 0;
+              hasCurrent = compI >= 0.035;
+            }
           }
 
           if (hasCurrent) {
@@ -1045,8 +1054,10 @@
         const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
         g.setAttribute("transform", `translate(${comp.x}, ${comp.y}) rotate(${comp.rot || 0})`);
 
-        // Each bulb glows yellow dynamically if its own branch carries sufficient current
-        const compI = Math.abs(currents[comp.id] || 0);
+        let compI = Math.abs(currents[comp.id] || 0);
+        let vDiff = Math.abs(voltages[comp.from] - voltages[comp.to]);
+        if (comp.type === 'bulb' && vDiff < 0.01) compI = 0;
+
         const bulbLitState = showAnimation ? (compI >= 0.035) : false;
 
         if (comp.type === 'cell') {
@@ -1069,13 +1080,10 @@
       const isOpposing = comp.voltage < 0;
       const rot = comp.rot || 0;
       g.innerHTML = `
-        <!-- White background mask -->
         <rect x="-14" y="-18" width="28" height="36" fill="#ffffff" stroke="none"/>
         <line x1="-20" y1="0" x2="-8" y2="0" class="wire"/>
         <line x1="8" y1="0" x2="20" y2="0" class="wire"/>
-        <!-- Long thin plate (+) -->
         <line x1="${isOpposing ? '8' : '-8'}" y1="-16" x2="${isOpposing ? '8' : '-8'}" y2="16" stroke="#0f172a" stroke-width="2"/>
-        <!-- Short thick plate (-) -->
         <line x1="${isOpposing ? '-8' : '8'}" y1="-10" x2="${isOpposing ? '-8' : '8'}" y2="10" stroke="#0f172a" stroke-width="4.5"/>
         <text x="0" y="${rot === 90 ? -28 : -22}" transform="${getLabelTransform(rot)}" class="component-label">${comp.label || 'Cell'}</text>
         <text x="${isOpposing ? '14' : '-16'}" y="18" font-size="11" font-weight="700" fill="#2563eb" transform="${getLabelTransform(rot)}">+</text>
@@ -1085,12 +1093,10 @@
     function drawBulbSVG(g, comp, isLit) {
       const rot = comp.rot || 0;
       const glowEffect = isLit ? `
-        <!-- Dynamic Glowing Yellow Background Aura -->
         <circle cx="0" cy="0" r="28" fill="#fde047" opacity="0.45"/>
         <circle cx="0" cy="0" r="22" fill="#facc15" opacity="0.75"/>
         <circle cx="0" cy="0" r="18" fill="#fef08a" stroke="#ca8a04" stroke-width="3"/>
       ` : `
-        <!-- White background mask -->
         <rect x="-20" y="-20" width="40" height="40" fill="#ffffff" stroke="none"/>
         <circle cx="0" cy="0" r="18" fill="#ffffff" stroke="#334155" stroke-width="2.5"/>
       `;
@@ -1099,7 +1105,6 @@
         <line x1="-30" y1="0" x2="-18" y2="0" class="wire"/>
         <line x1="18" y1="0" x2="30" y2="0" class="wire"/>
         ${glowEffect}
-        <!-- IEC Standard Curved Filament Loop -->
         <path d="M -8 6 L -8 0 A 8 8 0 0 1 8 0 L 8 6" fill="none" stroke="${isLit ? '#854d0e' : '#334155'}" stroke-width="2.8" stroke-linecap="round"/>
         <text x="0" y="${rot === 90 ? -30 : -26}" transform="${getLabelTransform(rot)}" class="component-label" font-weight="700" fill="${isLit ? '#b45309' : (comp.isTarget ? '#d97706' : '#334155')}">
           ${comp.label || 'Bulb'} ${comp.isTarget ? '★' : ''}
@@ -1110,13 +1115,11 @@
     function drawSwitchSVG(g, comp, isOpen) {
       const rot = comp.rot || 0;
       g.innerHTML = `
-        <!-- White background mask -->
         <rect x="-18" y="-18" width="36" height="36" fill="#ffffff" stroke="none"/>
         <line x1="-30" y1="0" x2="-16" y2="0" class="wire"/>
         <line x1="16" y1="0" x2="30" y2="0" class="wire"/>
         <circle cx="-16" cy="0" r="4" fill="#0f172a"/>
         <circle cx="16" cy="0" r="4" fill="#0f172a"/>
-        <!-- Switch lever -->
         <line x1="-16" y1="0" x2="${isOpen ? '10' : '16'}" y2="${isOpen ? '-16' : '0'}"
               stroke="#2563eb" stroke-width="3.5" stroke-linecap="round" class="switch-lever"/>
         <text x="0" y="${rot === 90 ? -28 : -22}" transform="${getLabelTransform(rot)}" class="component-label">${comp.label || 'Switch'}</text>
@@ -1127,7 +1130,6 @@
       const isAmmeter = comp.type === 'ammeter';
       const rot = comp.rot || 0;
       g.innerHTML = `
-        <!-- White background mask -->
         <rect x="-20" y="-20" width="40" height="40" fill="#ffffff" stroke="none"/>
         <line x1="-30" y1="0" x2="-18" y2="0" class="wire"/>
         <line x1="18" y1="0" x2="30" y2="0" class="wire"/>
@@ -1142,7 +1144,6 @@
     function drawRheostatSVG(g, comp) {
       const rot = comp.rot || 0;
       g.innerHTML = `
-        <!-- White background mask -->
         <rect x="-20" y="-20" width="40" height="40" fill="#ffffff" stroke="none"/>
         <line x1="-30" y1="0" x2="-18" y2="0" class="wire"/>
         <line x1="18" y1="0" x2="30" y2="0" class="wire"/>
@@ -1203,7 +1204,6 @@
       document.getElementById('tier-badge').innerText = `Tier ${q.tier}`;
       document.getElementById('question-prompt').innerText = t.prompt;
 
-      // Render static circuit diagram BEFORE answering (no current animation yet)
       const svgEl = document.getElementById('circuit-svg');
       renderCircuitSVG(svgEl, q, liveSwitches, false);
 
@@ -1219,10 +1219,23 @@
 
     function submitAnswer(userChoice) {
       const q = activeQuestions[currentIndex];
-      const { currents } = solveCircuit(q.nodesCount, q.components);
-      const targetComp = q.components.find(c => c.isTarget);
-      const actualIsLit = targetComp ? (Math.abs(currents[targetComp.id] || 0) >= 0.035) : false;
+      const liveComps = q.components.map(c => {
+        if (c.type === 'switch' && liveSwitches[c.id] !== undefined) {
+          return { ...c, isOpen: liveSwitches[c.id] };
+        }
+        return c;
+      });
 
+      const { voltages, currents } = solveCircuit(q.nodesCount, liveComps);
+      const targetComp = liveComps.find(c => c.isTarget);
+
+      let targetI = targetComp ? Math.abs(currents[targetComp.id] || 0) : 0;
+      if (targetComp) {
+        let vDiff = Math.abs(voltages[targetComp.from] - voltages[targetComp.to]);
+        if (vDiff < 0.01) targetI = 0;
+      }
+
+      const actualIsLit = (targetI >= 0.035);
       const isCorrect = (userChoice === actualIsLit);
       if (isCorrect) score += 1;
 
@@ -1243,7 +1256,6 @@
         btnNo.classList.add(isCorrect ? 'selected-correct' : 'selected-wrong');
       }
 
-      // Re-render SVG WITH live animation and bulb glow now that answer is submitted
       const svgEl = document.getElementById('circuit-svg');
       renderCircuitSVG(svgEl, q, liveSwitches, true);
 
@@ -1295,7 +1307,6 @@
           const newIsOpen = liveSwitches[sw.id];
           btn.innerText = `${t.toggleSwitch.replace('{name}', sw.label || sw.id)} (${newIsOpen ? '斷開 OFF' : '通電 ON'})`;
           
-          // Live re-render circuit and update current animations dynamically
           const svgEl = document.getElementById('circuit-svg');
           renderCircuitSVG(svgEl, q, liveSwitches, true);
         };
