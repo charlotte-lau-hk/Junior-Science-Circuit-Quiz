@@ -644,11 +644,11 @@
 
         if (uIdx >= 0) {
           G[uIdx][uIdx] += g;
-          B[uIdx] += g * E;
+          B[uIdx] -= g * E;
         }
         if (vIdx >= 0) {
           G[vIdx][vIdx] += g;
-          B[vIdx] -= g * E;
+          B[vIdx] += g * E;
         }
         if (uIdx >= 0 && vIdx >= 0) {
           G[uIdx][vIdx] -= g;
@@ -1288,7 +1288,7 @@
         const btn = document.createElement('button');
         btn.className = 'btn-toggle-switch';
         const isCurrentlyOpen = liveSwitches[sw.id];
-        btn.innerText = `${t.toggleSwitch.replace('{name}', sw.label || sw.id)} (${isCurrentlyOpen ? '通電 ON' : '斷開 OFF'})`;
+        btn.innerText = `${t.toggleSwitch.replace('{name}', sw.label || sw.id)} (${isCurrentlyOpen ? '斷開 OFF' : '通電 ON'})`;
         
         btn.onclick = () => {
           liveSwitches[sw.id] = !liveSwitches[sw.id];
