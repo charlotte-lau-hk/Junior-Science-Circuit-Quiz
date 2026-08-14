@@ -48,7 +48,6 @@
       gap: 20px;
     }
 
-    /* Header Styling */
     header {
       background: var(--card-bg);
       padding: 20px 24px;
@@ -94,7 +93,6 @@
       background: #dbeafe;
     }
 
-    /* Progress Bar */
     .progress-card {
       background: var(--card-bg);
       padding: 16px 24px;
@@ -128,7 +126,6 @@
       transition: width 0.3s ease;
     }
 
-    /* Quiz Card */
     .quiz-card {
       background: var(--card-bg);
       padding: 28px;
@@ -164,7 +161,6 @@
       line-height: 1.4;
     }
 
-    /* Circuit Canvas Area */
     .svg-container {
       width: 100%;
       background: #ffffff;
@@ -183,7 +179,6 @@
       user-select: none;
     }
 
-    /* SVG Elements */
     .wire {
       stroke: var(--wire-color);
       stroke-width: 3;
@@ -214,15 +209,6 @@
       dominant-baseline: middle;
     }
 
-    .svg-switch {
-      cursor: pointer;
-    }
-
-    .svg-switch:hover .switch-lever {
-      stroke: var(--primary);
-    }
-
-    /* Option Buttons */
     .options-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -268,7 +254,6 @@
       color: var(--danger);
     }
 
-    /* Feedback Card */
     .feedback-section {
       background: #f8fafc;
       border: 1px solid var(--border);
@@ -360,7 +345,6 @@
       background: var(--primary-hover);
     }
 
-    /* Final Diagnostic Screen */
     .report-card {
       background: var(--card-bg);
       padding: 32px 28px;
@@ -464,7 +448,6 @@
 <body>
 
   <div class="app-container">
-    <!-- Header -->
     <header>
       <div class="header-title">
         <h1 id="app-title">香港初中科學電路學測驗</h1>
@@ -475,9 +458,7 @@
       </div>
     </header>
 
-    <!-- Quiz Mode Area -->
     <div id="quiz-mode-container">
-      <!-- Progress Bar -->
       <div class="progress-card">
         <div class="progress-header">
           <span id="progress-text">進度：第 1 / 10 題</span>
@@ -488,19 +469,16 @@
         </div>
       </div>
 
-      <!-- Main Quiz Card -->
       <div class="quiz-card" id="quiz-card">
         <div class="question-header">
           <span class="tier-badge" id="tier-badge">Tier 1</span>
           <span class="question-title" id="question-prompt">載入中...</span>
         </div>
 
-        <!-- Dynamic SVG Circuit Render -->
         <div class="svg-container">
           <svg class="circuit-svg" id="circuit-svg" viewBox="0 0 500 300"></svg>
         </div>
 
-        <!-- Answer Options -->
         <div class="options-grid" id="options-grid">
           <button class="btn-option" id="btn-yes" onclick="submitAnswer(true)">
             <span>💡</span> <span id="label-yes">會發光 (Yes)</span>
@@ -510,7 +488,6 @@
           </button>
         </div>
 
-        <!-- Feedback & Explanation (Hidden initially) -->
         <div class="feedback-section hidden" id="feedback-section">
           <div class="feedback-header" id="feedback-header">
             <span id="feedback-icon"></span>
@@ -518,7 +495,6 @@
           </div>
           <p class="explanation-text" id="explanation-text"></p>
 
-          <!-- Interactive Sandbox Controls -->
           <div class="sandbox-controls">
             <div class="sandbox-title">
               <span>⚡</span> <span id="sandbox-label">實驗沙盒模式：切換開關觀察即時電流變化</span>
@@ -531,7 +507,6 @@
       </div>
     </div>
 
-    <!-- Diagnostic Report Screen (Hidden initially) -->
     <div class="report-card hidden" id="report-card">
       <div class="score-summary">
         <div class="score-circle" id="final-score-circle">0/10</div>
@@ -546,9 +521,6 @@
   </div>
 
   <script>
-    /* ==========================================================================
-       1. BILINGUAL TEXT DICTIONARY
-       ========================================================================== */
     const I18N = {
       zh: {
         appTitle: "香港初中科學電路學測驗",
@@ -612,11 +584,8 @@
 
     let currentLang = 'zh';
 
-    /* ==========================================================================
-       2. MNA PHYSICS ENGINE (MODIFIED NODAL ANALYSIS)
-       ========================================================================== */
     function solveCircuit(nodesCount, components) {
-      const N = nodesCount - 1; // Node 0 is Ground (0V)
+      const N = nodesCount - 1;
       if (N <= 0) return { voltages: [0], currents: {} };
 
       let G = Array.from({ length: N }, () => Array(N).fill(0));
@@ -631,7 +600,7 @@
         else if (comp.type === 'bulb') R = 10;
         else if (comp.type === 'resistor') R = 20;
         else if (comp.type === 'rheostat') R = comp.resistance !== undefined ? comp.resistance : 500;
-        else if (comp.type === 'ammeter') R = 1e-6; // Parallel ammeter acts as ideal short circuit
+        else if (comp.type === 'ammeter') R = 1e-6;
         else if (comp.type === 'voltmeter') R = 1e7;
         else if (comp.type === 'wire') R = 1e-6;
         else if (comp.type === 'cell') R = 1e-6;
@@ -656,7 +625,6 @@
         }
       });
 
-      // Gaussian Elimination with Partial Pivoting
       let A = G.map((row, i) => [...row, B[i]]);
       for (let i = 0; i < N; i++) {
         let maxRow = i;
@@ -709,12 +677,8 @@
       return { voltages: V, currents };
     }
 
-    /* ==========================================================================
-       3. 100 PROCEDURAL QUESTIONS POOL (10 TIERS x 10 VARIATIONS)
-       ========================================================================== */
     function build100QuestionsPool() {
       const pool = [];
-
       for (let tier = 1; tier <= 10; tier++) {
         for (let varIdx = 1; varIdx <= 10; varIdx++) {
           let q = createQuestionInstance(tier, varIdx);
@@ -738,7 +702,6 @@
       };
 
       if (tier === 1) {
-        // Tier 1: Basic Single-Loop
         q.categoryKey = 'basic';
         q.nodesCount = 4;
         let isOpen = (v % 2 === 0);
@@ -760,14 +723,12 @@
         };
       }
       else if (tier >= 2 && tier <= 4) {
-        // Series & Parallel
         q.categoryKey = 'series_parallel';
         let isParallel = (tier >= 3);
         let s1Open = (v === 2 || v === 4 || v === 6);
         let s2Open = (v === 3 || v === 4 || v === 7);
 
         if (!isParallel) {
-          // Series Circuit
           q.nodesCount = 5;
           q.components = [
             { id: 'cell1', type: 'cell', from: 0, to: 1, x: 250, y: 240, rot: 0, voltage: 1.5, label: 'Cell' },
@@ -788,7 +749,6 @@
             en: s1Open ? "In a series circuit, an open switch breaks the entire single loop, so Bulb X stays off." : "All components are connected in series in a complete loop, allowing current to flow through Bulb X."
           };
         } else {
-          // Parallel Circuit
           q.nodesCount = 4;
           q.components = [
             { id: 'cell1', type: 'cell', from: 0, to: 1, x: 250, y: 250, rot: 0, voltage: 1.5, label: 'Cell' },
@@ -805,10 +765,7 @@
             { compId: 'bulbY', d: "M 260 60 L 400 60 L 400 150" },
             { compId: 'cell1', d: "M 400 150 L 400 250" }
           ];
-          q.junctions = [
-            { x: 100, y: 150 },
-            { x: 400, y: 150 }
-          ];
+          q.junctions = [{ x: 100, y: 150 }, { x: 400, y: 150 }];
           q.explanation = {
             zh: s1Open ? "主幹路上的開關 S1 斷開，切斷了電源總電流，因此分支上的電燈泡 X 不會發光。" : "主幹路閉合，電燈泡 X 位於獨立的平行支路上，不受其他支路影響，正常發光。",
             en: s1Open ? "Main switch S1 is OPEN, cutting off total current supply to all parallel branches." : "Main switch is CLOSED. Bulb X sits on its own independent branch and receives current normally."
@@ -816,7 +773,6 @@
         }
       }
       else if (tier === 5) {
-        // Short Circuit Scenarios
         q.categoryKey = 'short_circuit';
         q.nodesCount = 3;
         let isShort = (v % 2 === 1);
@@ -830,20 +786,16 @@
           { compId: 'cell1', d: "M 100 250 L 400 250" },
           { compId: 'sw1', d: "M 100 250 L 100 150" },
           { compId: 'bulbX', d: "M 100 150 L 400 150" },
-          { compId: 'swShort', d: "M 100 150 L 100 60 L 400 60 L 400 150" },
+          { compId: 'swShort', d: "M 100 150 L 100 60 L 400 60 L 400 150", isShortPath: true },
           { compId: 'cell1', d: "M 400 150 L 400 250" }
         ];
-        q.junctions = [
-          { x: 100, y: 150 },
-          { x: 400, y: 150 }
-        ];
+        q.junctions = [{ x: 100, y: 150 }, { x: 400, y: 150 }];
         q.explanation = {
           zh: isShort ? "旁路開關 S2 閉合形成短路！電流選擇零電阻的導線路徑，完全繞過電燈泡 X，故燈泡熄滅。" : "短路開關 S2 保持斷開，電流必須流經電燈泡 X，因此燈泡正常發光。",
           en: isShort ? "Switch S2 is CLOSED creating a zero-resistance short circuit path that bypasses Bulb X completely!" : "Short-circuit switch S2 is OPEN. Current is forced to pass through Bulb X, lighting it up."
         };
       }
       else if (tier === 6 || tier === 7) {
-        // Meters (Ammeter & Voltmeter)
         q.categoryKey = 'meters';
         let isVoltmeter = (tier === 6);
         let inSeries = (v % 2 === 1);
@@ -865,19 +817,15 @@
             { compId: 'cell1', d: "M 100 250 L 400 250" },
             { compId: 'sw1', d: "M 100 250 L 100 150" },
             { compId: 'bulbX', d: "M 100 150 L 400 150" },
-            { compId: 'meter1', d: "M 100 150 L 100 60 L 400 60 L 400 150" },
+            { compId: 'meter1', d: "M 100 150 L 100 60 L 400 60 L 400 150", isShortPath: true },
             { compId: 'cell1', d: "M 400 150 L 400 250" }
           ];
-          q.junctions = inSeries ? [] : [
-            { x: 100, y: 150 },
-            { x: 400, y: 150 }
-          ];
+          q.junctions = inSeries ? [] : [{ x: 100, y: 150 }, { x: 400, y: 150 }];
           q.explanation = {
             zh: inSeries ? "電壓表內阻極高（約10MΩ），錯誤地串聯在電路中會阻擋絕大部分電流，導致燈泡 X 無法發光。" : "電壓表正確地並聯在電路兩端，其高內阻不會影響流經燈泡 X 的主幹電流，燈泡正常發光。",
             en: inSeries ? "A Voltmeter has extremely high resistance (~10MΩ). Connected in SERIES, it blocks current completely." : "The Voltmeter is correctly connected in PARALLEL. Its high resistance does not affect current through Bulb X."
           };
         } else {
-          // Ammeter
           q.nodesCount = inSeries ? 4 : 3;
           q.components = [
             { id: 'cell1', type: 'cell', from: 0, to: 1, x: 250, y: 250, rot: 0, voltage: 1.5, label: 'Cell' },
@@ -894,13 +842,10 @@
             { compId: 'cell1', d: "M 100 250 L 400 250" },
             { compId: 'sw1', d: "M 100 250 L 100 150" },
             { compId: 'bulbX', d: "M 100 150 L 400 150" },
-            { compId: 'meter1', d: "M 100 150 L 100 60 L 400 60 L 400 150" },
+            { compId: 'meter1', d: "M 100 150 L 100 60 L 400 60 L 400 150", isShortPath: true },
             { compId: 'cell1', d: "M 400 150 L 400 250" }
           ];
-          q.junctions = inSeries ? [] : [
-            { x: 100, y: 150 },
-            { x: 400, y: 150 }
-          ];
+          q.junctions = inSeries ? [] : [{ x: 100, y: 150 }, { x: 400, y: 150 }];
           q.explanation = {
             zh: inSeries ? "電流表內阻接近零，正確串聯在電路中能精確量度電流，且不阻礙電燈泡 X 發光。" : "電流表內阻極低，錯誤並聯在燈泡 X 兩端會造成短路！電流全數繞過燈泡，導致燈泡熄滅。",
             en: inSeries ? "An Ammeter has near-zero resistance and is correctly connected in SERIES, allowing current to flow." : "An Ammeter has near-zero resistance. Connected in PARALLEL across Bulb X, it creates a short circuit!"
@@ -908,7 +853,6 @@
         }
       }
       else if (tier === 8) {
-        // Rheostats & Variable Resistance
         q.categoryKey = 'components';
         q.nodesCount = 4;
         let isMaxResistance = (v % 2 === 1);
@@ -930,7 +874,6 @@
         };
       }
       else if (tier === 9) {
-        // Cell Polarity Opposing
         q.categoryKey = 'polarity';
         q.nodesCount = 4;
         let isOpposing = (v % 2 === 1);
@@ -952,7 +895,6 @@
         };
       }
       else {
-        // Tier 10: Master Complex Multi-Branch
         q.categoryKey = 'complex';
         q.nodesCount = 4;
         let s1Open = (v === 1 || v === 3 || v === 5);
@@ -968,13 +910,10 @@
           { compId: 'cell1', d: "M 100 260 L 400 260" },
           { compId: 'sw1', d: "M 100 260 L 100 165" },
           { compId: 'bulbX', d: "M 100 165 L 400 165" },
-          { compId: 'swShort', d: "M 100 165 L 100 70 L 400 70 L 400 165" },
+          { compId: 'swShort', d: "M 100 165 L 100 70 L 400 70 L 400 165", isShortPath: true },
           { compId: 'meter1', d: "M 400 165 L 400 260" }
         ];
-        q.junctions = [
-          { x: 100, y: 165 },
-          { x: 400, y: 165 }
-        ];
+        q.junctions = [{ x: 100, y: 165 }, { x: 400, y: 165 }];
         q.explanation = {
           zh: s1Open ? "主幹開關 S1 斷開導致總電路中斷。" : (shortActive ? "旁路開關 S2 閉合造成短路，電流繞過燈泡 X。" : "主開關閉合且無短路，電流通過安培表與燈泡 X，燈泡發光。"),
           en: s1Open ? "Main switch S1 is open, cutting off main power." : (shortActive ? "Short switch S2 is closed, creating a bypass short circuit across Bulb X." : "Main switch closed without short circuit; current flows smoothly through Bulb X.")
@@ -984,9 +923,6 @@
       return q;
     }
 
-    /* ==========================================================================
-       4. SVG RENDERING ENGINE FOR CIRCUIT SYMBOLS & JUNCTION NODES
-       ========================================================================== */
     function getLabelTransform(rot) {
       if (!rot) return '';
       return `rotate(${-rot})`;
@@ -995,15 +931,6 @@
     function renderCircuitSVG(svgEl, question, currentSwitchesState, showAnimation = false) {
       svgEl.innerHTML = '';
 
-      // 1. Draw static background wires
-      question.layoutWires.forEach(w => {
-        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-        path.setAttribute("d", w.d);
-        path.setAttribute("class", "wire");
-        svgEl.appendChild(path);
-      });
-
-      // 2. Solve live circuit physics based on switch states
       const liveComponents = question.components.map(c => {
         if (c.type === 'switch' && currentSwitchesState[c.id] !== undefined) {
           return { ...c, isOpen: currentSwitchesState[c.id] };
@@ -1013,27 +940,54 @@
 
       const { voltages, currents } = solveCircuit(question.nodesCount, liveComponents);
 
-      // Helper to evaluate effective branch current with ideal short circuit voltage drop check
+      function isNodeShorted(fromNode, toNode) {
+        return Math.abs(voltages[fromNode] - voltages[toNode]) < 0.001;
+      }
+
+      // Check if parallel branch component is shorted
       function getEffectiveCurrent(comp) {
         if (!comp) return 0;
         let vDiff = Math.abs(voltages[comp.from] - voltages[comp.to]);
         let compI = Math.abs(currents[comp.id] || 0);
-
-        // If voltage drop across load is essentially 0V (< 0.001V), branch is shorted!
         if (comp.type === 'bulb' && vDiff < 0.001) return 0;
         return compI;
       }
 
-      // 3. Draw Animated Current Flow Paths ONLY on branches carrying active current (>= 0.035A)
+      // Check if short path wire is active
+      let isShortActive = false;
+      liveComponents.forEach(c => {
+        if (c.type === 'switch' && !c.isOpen) {
+          if (Math.abs(voltages[c.from] - voltages[c.to]) < 0.001) {
+            isShortActive = true;
+          }
+        }
+      });
+
+      // 1. Draw static background wires
+      question.layoutWires.forEach(w => {
+        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        path.setAttribute("d", w.d);
+        path.setAttribute("class", "wire");
+        svgEl.appendChild(path);
+      });
+
+      // 2. Draw Animated Current Flow Paths
       if (showAnimation) {
         question.layoutWires.forEach((w) => {
           let hasCurrent = false;
           if (w.compId) {
             let comp = liveComponents.find(c => c.id === w.compId);
             if (comp) {
-              let compI = getEffectiveCurrent(comp);
-              hasCurrent = (compI >= 0.035);
+              let effI = getEffectiveCurrent(comp);
+              if (comp.type === 'bulb' && isNodeShorted(comp.from, comp.to)) {
+                hasCurrent = false; // Bypass bulb when shorted
+              } else {
+                hasCurrent = (effI >= 0.035);
+              }
             }
+          }
+          if (w.isShortPath && isShortActive) {
+            hasCurrent = true; // Force show current on short path when shorted
           }
 
           if (hasCurrent) {
@@ -1045,7 +999,7 @@
         });
       }
 
-      // 4. Draw explicit T-Junction Node Dots
+      // 3. Draw explicit T-Junction Node Dots
       if (question.junctions) {
         question.junctions.forEach(j => {
           const dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
@@ -1057,12 +1011,15 @@
         });
       }
 
-      // 5. Draw Component Symbols
+      // 4. Draw Component Symbols
       liveComponents.forEach(comp => {
         const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
         g.setAttribute("transform", `translate(${comp.x}, ${comp.y}) rotate(${comp.rot || 0})`);
 
         let effI = getEffectiveCurrent(comp);
+        if (comp.type === 'bulb' && isNodeShorted(comp.from, comp.to)) {
+          effI = 0;
+        }
         const bulbLitState = showAnimation ? (effI >= 0.035) : false;
 
         if (comp.type === 'cell') {
@@ -1158,9 +1115,6 @@
       `;
     }
 
-    /* ==========================================================================
-       5. QUIZ STATE & CONTROLLER LOGIC
-       ========================================================================== */
     let quizPool = [];
     let activeQuestions = [];
     let currentIndex = 0;
@@ -1235,9 +1189,8 @@
       const targetComp = liveComps.find(c => c.isTarget);
 
       let targetI = targetComp ? Math.abs(currents[targetComp.id] || 0) : 0;
-      if (targetComp) {
-        let vDiff = Math.abs(voltages[targetComp.from] - voltages[targetComp.to]);
-        if (vDiff < 0.001) targetI = 0;
+      if (targetComp && Math.abs(voltages[targetComp.from] - voltages[targetComp.to]) < 0.001) {
+        targetI = 0;
       }
 
       const actualIsLit = (targetI >= 0.035);
@@ -1305,12 +1258,13 @@
         const btn = document.createElement('button');
         btn.className = 'btn-toggle-switch';
         const isCurrentlyOpen = liveSwitches[sw.id];
-        btn.innerText = `${t.toggleSwitch.replace('{name}', sw.label || sw.id)} (${isCurrentlyOpen ? '通電 ON' : '斷開 OFF'})`;
+        // Fixed text mapping: isOpen = true means Open (斷開 OFF), isOpen = false means Closed (通電 ON)
+        btn.innerText = `${t.toggleSwitch.replace('{name}', sw.label || sw.id)} (${isCurrentlyOpen ? '斷開 OFF' : '通電 ON'})`;
         
         btn.onclick = () => {
           liveSwitches[sw.id] = !liveSwitches[sw.id];
           const newIsOpen = liveSwitches[sw.id];
-          btn.innerText = `${t.toggleSwitch.replace('{name}', sw.label || sw.id)} (${newIsOpen ? '通電 ON' : '斷開 OFF'})`;
+          btn.innerText = `${t.toggleSwitch.replace('{name}', sw.label || sw.id)} (${newIsOpen ? '斷開 OFF' : '通電 ON'})`;
           
           const svgEl = document.getElementById('circuit-svg');
           renderCircuitSVG(svgEl, q, liveSwitches, true);
