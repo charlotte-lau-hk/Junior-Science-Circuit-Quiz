@@ -596,14 +596,14 @@
         let v = comp.to;
 
         let R = 0.01;
-        if (comp.type === 'switch') R = comp.isOpen ? 1e8 : 1e-6;
+        if (comp.type === 'switch') R = comp.isOpen ? 1e8 : 1e-12;
         else if (comp.type === 'bulb') R = 10;
         else if (comp.type === 'resistor') R = 20;
         else if (comp.type === 'rheostat') R = comp.resistance !== undefined ? comp.resistance : 500;
-        else if (comp.type === 'ammeter') R = 1e-6;
+        else if (comp.type === 'ammeter') R = 1e-12;
         else if (comp.type === 'voltmeter') R = 1e7;
-        else if (comp.type === 'wire') R = 1e-6;
-        else if (comp.type === 'cell') R = 1e-6;
+        else if (comp.type === 'wire') R = 1e-12;
+        else if (comp.type === 'cell') R = 0.01;
 
         let g = 1 / R;
         let E = (comp.type === 'cell') ? (comp.voltage !== undefined ? comp.voltage : 1.5) : 0;
@@ -661,14 +661,14 @@
         let Vv = V[comp.to];
         let E = (comp.type === 'cell') ? (comp.voltage !== undefined ? comp.voltage : 1.5) : 0;
         let R = 0.01;
-        if (comp.type === 'switch') R = comp.isOpen ? 1e8 : 1e-6;
+        if (comp.type === 'switch') R = comp.isOpen ? 1e8 : 1e-12;
         else if (comp.type === 'bulb') R = 10;
         else if (comp.type === 'resistor') R = 20;
         else if (comp.type === 'rheostat') R = comp.resistance !== undefined ? comp.resistance : 500;
-        else if (comp.type === 'ammeter') R = 1e-6;
+        else if (comp.type === 'ammeter') R = 1e-12;
         else if (comp.type === 'voltmeter') R = 1e7;
-        else if (comp.type === 'wire') R = 1e-6;
-        else if (comp.type === 'cell') R = 1e-6;
+        else if (comp.type === 'wire') R = 1e-12;
+        else if (comp.type === 'cell') R = 0.01;
 
         let I = (Vu - Vv + E) / R;
         currents[comp.id] = I;
@@ -677,22 +677,12 @@
       return { voltages: V, currents };
     }
 
-    function build100QuestionsPool() {
-      const pool = [];
-      for (let tier = 1; tier <= 10; tier++) {
-        for (let varIdx = 1; varIdx <= 10; varIdx++) {
-          let q = createQuestionInstance(tier, varIdx);
-          pool.push(q);
-        }
-      }
-      return pool;
-    }
-
-    function createQuestionInstance(tier, v) {
+    /* ==========================================================================
+       DYNAMIC RANDOM QUESTION GENERATOR FOR REAL-TIME VARIETY
+       ========================================================================== */
+    function generateRandomQuestionForTier(tier) {
       let q = {
         tier: tier,
-        variation: v,
-        id: `T${tier}_V${v}`,
         categoryKey: 'basic',
         nodesCount: 4,
         components: [],
@@ -701,10 +691,12 @@
         explanation: { zh: "", en: "" }
       };
 
+      const randBool = () => Math.random() < 0.5;
+
       if (tier === 1) {
         q.categoryKey = 'basic';
         q.nodesCount = 4;
-        let isOpen = (v % 2 === 0);
+        let isOpen = randBool();
         q.components = [
           { id: 'cell1', type: 'cell', from: 0, to: 1, x: 250, y: 240, rot: 0, voltage: 1.5, label: 'Cell (1.5V)' },
           { id: 'sw1', type: 'switch', from: 1, to: 2, x: 100, y: 150, rot: 90, isOpen: isOpen, label: 'S1' },
@@ -725,8 +717,8 @@
       else if (tier >= 2 && tier <= 4) {
         q.categoryKey = 'series_parallel';
         let isParallel = (tier >= 3);
-        let s1Open = (v === 2 || v === 4 || v === 6);
-        let s2Open = (v === 3 || v === 4 || v === 7);
+        let s1Open = randBool();
+        let s2Open = randBool();
 
         if (!isParallel) {
           q.nodesCount = 5;
@@ -775,7 +767,7 @@
       else if (tier === 5) {
         q.categoryKey = 'short_circuit';
         q.nodesCount = 3;
-        let isShort = (v % 2 === 1);
+        let isShort = randBool();
         q.components = [
           { id: 'cell1', type: 'cell', from: 0, to: 1, x: 250, y: 250, rot: 0, voltage: 1.5, label: 'Cell' },
           { id: 'sw1', type: 'switch', from: 1, to: 2, x: 100, y: 200, rot: 90, isOpen: false, label: 'S1' },
@@ -798,7 +790,7 @@
       else if (tier === 6 || tier === 7) {
         q.categoryKey = 'meters';
         let isVoltmeter = (tier === 6);
-        let inSeries = (v % 2 === 1);
+        let inSeries = randBool();
 
         if (isVoltmeter) {
           q.nodesCount = inSeries ? 4 : 3;
@@ -855,7 +847,7 @@
       else if (tier === 8) {
         q.categoryKey = 'components';
         q.nodesCount = 4;
-        let isMaxResistance = (v % 2 === 1);
+        let isMaxResistance = randBool();
         q.components = [
           { id: 'cell1', type: 'cell', from: 0, to: 1, x: 250, y: 250, rot: 0, voltage: 1.5, label: 'Cell' },
           { id: 'sw1', type: 'switch', from: 1, to: 2, x: 100, y: 150, rot: 90, isOpen: false, label: 'S1' },
@@ -876,7 +868,7 @@
       else if (tier === 9) {
         q.categoryKey = 'polarity';
         q.nodesCount = 4;
-        let isOpposing = (v % 2 === 1);
+        let isOpposing = randBool();
         q.components = [
           { id: 'cell1', type: 'cell', from: 0, to: 1, x: 180, y: 250, rot: 0, voltage: 1.5, label: 'Cell 1 (+)' },
           { id: 'cell2', type: 'cell', from: 1, to: 2, x: 320, y: 250, rot: 0, voltage: isOpposing ? -1.5 : 1.5, label: isOpposing ? 'Cell 2 (Opposing)' : 'Cell 2 (Series)' },
@@ -897,8 +889,8 @@
       else {
         q.categoryKey = 'complex';
         q.nodesCount = 4;
-        let s1Open = (v === 1 || v === 3 || v === 5);
-        let shortActive = (v === 2 || v === 3 || v === 7);
+        let s1Open = randBool();
+        let shortActive = randBool();
         q.components = [
           { id: 'cell1', type: 'cell', from: 0, to: 1, x: 250, y: 260, rot: 0, voltage: 1.5, label: 'Cell' },
           { id: 'sw1', type: 'switch', from: 1, to: 2, x: 100, y: 212, rot: 90, isOpen: s1Open, label: 'Main S1' },
@@ -944,7 +936,6 @@
         return Math.abs(voltages[fromNode] - voltages[toNode]) < 0.001;
       }
 
-      // Check if parallel branch component is shorted
       function getEffectiveCurrent(comp) {
         if (!comp) return 0;
         let vDiff = Math.abs(voltages[comp.from] - voltages[comp.to]);
@@ -953,7 +944,6 @@
         return compI;
       }
 
-      // Check if short path wire is active
       let isShortActive = false;
       liveComponents.forEach(c => {
         if (c.type === 'switch' && !c.isOpen) {
@@ -980,14 +970,14 @@
             if (comp) {
               let effI = getEffectiveCurrent(comp);
               if (comp.type === 'bulb' && isNodeShorted(comp.from, comp.to)) {
-                hasCurrent = false; // Bypass bulb when shorted
+                hasCurrent = false;
               } else {
                 hasCurrent = (effI >= 0.035);
               }
             }
           }
           if (w.isShortPath && isShortActive) {
-            hasCurrent = true; // Force show current on short path when shorted
+            hasCurrent = true;
           }
 
           if (hasCurrent) {
@@ -1115,7 +1105,6 @@
       `;
     }
 
-    let quizPool = [];
     let activeQuestions = [];
     let currentIndex = 0;
     let score = 0;
@@ -1123,15 +1112,13 @@
     let liveSwitches = {};
 
     function initApp() {
-      quizPool = build100QuestionsPool();
       startNewQuiz();
     }
 
     function startNewQuiz() {
       activeQuestions = [];
       for (let t = 1; t <= 10; t++) {
-        const tierPool = quizPool.filter(q => q.tier === t);
-        const randomQ = tierPool[Math.floor(Math.random() * tierPool.length)];
+        const randomQ = generateRandomQuestionForTier(t);
         activeQuestions.push(randomQ);
       }
 
@@ -1258,7 +1245,6 @@
         const btn = document.createElement('button');
         btn.className = 'btn-toggle-switch';
         const isCurrentlyOpen = liveSwitches[sw.id];
-        // Fixed text mapping: isOpen = true means Open (斷開 OFF), isOpen = false means Closed (通電 ON)
         btn.innerText = `${t.toggleSwitch.replace('{name}', sw.label || sw.id)} (${isCurrentlyOpen ? '斷開 OFF' : '通電 ON'})`;
         
         btn.onclick = () => {
