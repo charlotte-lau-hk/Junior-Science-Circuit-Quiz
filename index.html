@@ -1,0 +1,1310 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>香港初中科學電路學互動測驗 HK Junior Science Circuit Quiz</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --primary-light: #eff6ff;
+      --success: #059669;
+      --success-light: #ecfdf5;
+      --danger: #dc2626;
+      --danger-light: #fef2f2;
+      --warning: #d97706;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --wire-color: #334155;
+      --bulb-lit: #fef08a;
+      --bulb-glow: #eab308;
+      --radius: 16px;
+      --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.03);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "PingFang HK", "Microsoft JhengHei", sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text-main);
+      display: flex;
+      justify-content: center;
+      padding: 24px 16px;
+      min-height: 100vh;
+    }
+
+    .app-container {
+      width: 100%;
+      max-width: 860px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* Header Styling */
+    header {
+      background: var(--card-bg);
+      padding: 20px 24px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border: 1px solid var(--border);
+    }
+
+    .header-title h1 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .header-title p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn-lang {
+      background: var(--primary-light);
+      color: var(--primary);
+      border: 1px solid #bfdbfe;
+      padding: 8px 14px;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-lang:hover {
+      background: #dbeafe;
+    }
+
+    /* Progress Bar */
+    .progress-card {
+      background: var(--card-bg);
+      padding: 16px 24px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.875rem;
+      font-weight: 600;
+    }
+
+    .progress-bar-bg {
+      width: 100%;
+      height: 10px;
+      background: #e2e8f0;
+      border-radius: 5px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: var(--primary);
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    /* Quiz Card */
+    .quiz-card {
+      background: var(--card-bg);
+      padding: 28px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .question-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .tier-badge {
+      background: #f1f5f9;
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 12px;
+      text-transform: uppercase;
+      border: 1px solid var(--border);
+    }
+
+    .question-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text-main);
+      line-height: 1.4;
+    }
+
+    /* Circuit Canvas Area */
+    .svg-container {
+      width: 100%;
+      background: #ffffff;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+
+    svg.circuit-svg {
+      width: 100%;
+      max-height: 320px;
+      user-select: none;
+    }
+
+    /* SVG Elements */
+    .wire {
+      stroke: var(--wire-color);
+      stroke-width: 3;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      fill: none;
+    }
+
+    .current-flow {
+      stroke: var(--primary);
+      stroke-width: 3.5;
+      stroke-dasharray: 8 6;
+      fill: none;
+      animation: dash 0.9s linear infinite;
+    }
+
+    @keyframes dash {
+      to {
+        stroke-dashoffset: -28;
+      }
+    }
+
+    .component-label {
+      font-size: 13px;
+      font-weight: 600;
+      fill: #334155;
+      text-anchor: middle;
+      dominant-baseline: middle;
+    }
+
+    .svg-switch {
+      cursor: pointer;
+    }
+
+    .svg-switch:hover .switch-lever {
+      stroke: var(--primary);
+    }
+
+    /* Option Buttons */
+    .options-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .btn-option {
+      padding: 16px;
+      border-radius: 12px;
+      border: 2px solid var(--border);
+      background: #ffffff;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text-main);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-option:hover:not(:disabled) {
+      border-color: var(--primary);
+      background: var(--primary-light);
+      color: var(--primary);
+    }
+
+    .btn-option:disabled {
+      cursor: default;
+      opacity: 0.8;
+    }
+
+    .btn-option.selected-correct {
+      background: var(--success-light);
+      border-color: var(--success);
+      color: var(--success);
+    }
+
+    .btn-option.selected-wrong {
+      background: var(--danger-light);
+      border-color: var(--danger);
+      color: var(--danger);
+    }
+
+    /* Feedback Card */
+    .feedback-section {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .feedback-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    .feedback-header.correct { color: var(--success); }
+    .feedback-header.wrong { color: var(--danger); }
+
+    .explanation-text {
+      font-size: 0.95rem;
+      line-height: 1.5;
+      color: #334155;
+    }
+
+    .sandbox-controls {
+      background: #ffffff;
+      border: 1px dashed #cbd5e1;
+      padding: 12px 16px;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .sandbox-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .sandbox-btn-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .btn-toggle-switch {
+      background: #f1f5f9;
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .btn-toggle-switch:hover {
+      background: #e2e8f0;
+    }
+
+    .btn-next {
+      background: var(--primary);
+      color: #ffffff;
+      border: none;
+      padding: 14px 24px;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      align-self: flex-end;
+      transition: background 0.2s ease;
+    }
+
+    .btn-next:hover {
+      background: var(--primary-hover);
+    }
+
+    /* Final Diagnostic Screen */
+    .report-card {
+      background: var(--card-bg);
+      padding: 32px 28px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      text-align: center;
+    }
+
+    .score-summary {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .score-circle {
+      width: 110px;
+      height: 110px;
+      border-radius: 55px;
+      background: var(--primary-light);
+      border: 4px solid var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: var(--primary);
+      margin-bottom: 8px;
+    }
+
+    .report-title {
+      font-size: 1.4rem;
+      font-weight: 800;
+    }
+
+    .report-subtitle {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+    }
+
+    .breakdown-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      text-align: left;
+      margin-top: 8px;
+    }
+
+    .breakdown-item {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .breakdown-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .status-tag {
+      font-size: 0.75rem;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-weight: 700;
+    }
+
+    .tag-mastered { background: #dcfce7; color: #15803d; }
+    .tag-practice { background: #fef3c7; color: #b45309; }
+
+    .btn-restart {
+      background: var(--primary);
+      color: #ffffff;
+      border: none;
+      padding: 16px 32px;
+      border-radius: 12px;
+      font-size: 1.05rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s ease;
+      margin: 12px auto 0 auto;
+    }
+
+    .btn-restart:hover { background: var(--primary-hover); }
+
+    .hidden { display: none !important; }
+
+    @media (max-width: 600px) {
+      .options-grid { grid-template-columns: 1fr; }
+      .header-title h1 { font-size: 1.1rem; }
+      .quiz-card { padding: 20px 16px; }
+      svg.circuit-svg { max-height: 260px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    <!-- Header -->
+    <header>
+      <div class="header-title">
+        <h1 id="app-title">香港初中科學電路學測驗</h1>
+        <p id="app-subtitle">S1–S3 電路符號、邏輯與閉合迴路練習</p>
+      </div>
+      <div class="header-actions">
+        <button class="btn-lang" id="btn-lang" onclick="toggleLanguage()">English</button>
+      </div>
+    </header>
+
+    <!-- Quiz Mode Area -->
+    <div id="quiz-mode-container">
+      <!-- Progress Bar -->
+      <div class="progress-card">
+        <div class="progress-header">
+          <span id="progress-text">進度：第 1 / 10 題</span>
+          <span id="score-text">目前得分：0 分</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" id="progress-fill"></div>
+        </div>
+      </div>
+
+      <!-- Main Quiz Card -->
+      <div class="quiz-card" id="quiz-card">
+        <div class="question-header">
+          <span class="tier-badge" id="tier-badge">Tier 1</span>
+          <span class="question-title" id="question-prompt">載入中...</span>
+        </div>
+
+        <!-- Dynamic SVG Circuit Render -->
+        <div class="svg-container">
+          <svg class="circuit-svg" id="circuit-svg" viewBox="0 0 500 300"></svg>
+        </div>
+
+        <!-- Answer Options -->
+        <div class="options-grid" id="options-grid">
+          <button class="btn-option" id="btn-yes" onclick="submitAnswer(true)">
+            <span>💡</span> <span id="label-yes">會發光 (Yes)</span>
+          </button>
+          <button class="btn-option" id="btn-no" onclick="submitAnswer(false)">
+            <span>⬛</span> <span id="label-no">不會發光 (No)</span>
+          </button>
+        </div>
+
+        <!-- Feedback & Explanation (Hidden initially) -->
+        <div class="feedback-section hidden" id="feedback-section">
+          <div class="feedback-header" id="feedback-header">
+            <span id="feedback-icon"></span>
+            <span id="feedback-title"></span>
+          </div>
+          <p class="explanation-text" id="explanation-text"></p>
+
+          <!-- Interactive Sandbox Controls -->
+          <div class="sandbox-controls">
+            <div class="sandbox-title">
+              <span>⚡</span> <span id="sandbox-label">實驗沙盒模式：切換開關觀察即時電流變化</span>
+            </div>
+            <div class="sandbox-btn-group" id="sandbox-btn-group"></div>
+          </div>
+
+          <button class="btn-next" id="btn-next" onclick="nextQuestion()">下一題 Next ➔</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Diagnostic Report Screen (Hidden initially) -->
+    <div class="report-card hidden" id="report-card">
+      <div class="score-summary">
+        <div class="score-circle" id="final-score-circle">0/10</div>
+        <h2 class="report-title" id="report-title">測驗完成！</h2>
+        <p class="report-subtitle" id="report-subtitle">以下是你的初中科學電路學概念診斷報告：</p>
+      </div>
+
+      <div class="breakdown-list" id="breakdown-list"></div>
+
+      <button class="btn-restart" id="btn-restart" onclick="restartQuiz()">🔄 重新開始測驗 (Restart Quiz)</button>
+    </div>
+  </div>
+
+  <script>
+    /* ==========================================================================
+       1. BILINGUAL TEXT DICTIONARY
+       ========================================================================== */
+    const I18N = {
+      zh: {
+        appTitle: "香港初中科學電路學測驗",
+        appSubtitle: "S1–S3 電路符號、邏輯與閉合迴路練習",
+        langBtn: "English",
+        progress: "進度：第 {cur} / {total} 題",
+        score: "目前得分：{score} 分",
+        prompt: "請觀察以下電路圖。當開關處於圖示狀態時，電燈泡 X 會發光嗎？",
+        yes: "會發光 (Yes)",
+        no: "不會發光 (No)",
+        correct: "回答正確！",
+        wrong: "回答錯誤！",
+        sandboxLabel: "實驗沙盒模式：切換開關觀察即時電流變化",
+        toggleSwitch: "切換開關 {name}",
+        nextBtn: "下一題 Next ➔",
+        finishBtn: "查看診斷報告 View Report ➔",
+        reportTitle: "電路學概念診斷報告",
+        reportSubtitle: "根據你的答題表現，系統為你分析了以下 6 大核心概念：",
+        restartBtn: "🔄 重新開始測驗 (Restart Quiz)",
+        mastered: "概念已掌握",
+        needsPractice: "需要加強練習",
+        categories: {
+          basic: "基本閉合迴路 (Basic Closed Loops)",
+          series_parallel: "串聯與並聯電路 (Series & Parallel)",
+          short_circuit: "短路現象 (Short Circuits)",
+          meters: "電錶正確連接 (Ammeter & Voltmeter)",
+          components: "變阻器與元件 (Rheostats & Components)",
+          polarity: "電池極性方向 (Cell Polarity)"
+        }
+      },
+      en: {
+        appTitle: "HK Junior Science Circuit Quiz",
+        appSubtitle: "S1–S3 Circuit Symbols, Logic & Closed Loop Practice",
+        langBtn: "繁體中文",
+        progress: "Progress: Question {cur} of {total}",
+        score: "Current Score: {score}",
+        prompt: "Observe the circuit diagram below. Will Light Bulb X light up under the shown switch states?",
+        yes: "Yes, it lights up",
+        no: "No, it stays off",
+        correct: "Correct Answer!",
+        wrong: "Incorrect!",
+        sandboxLabel: "Interactive Sandbox: Toggle switches to observe real-time circuit behavior",
+        toggleSwitch: "Toggle Switch {name}",
+        nextBtn: "Next Question ➔",
+        finishBtn: "View Diagnostic Report ➔",
+        reportTitle: "Diagnostic Concept Report",
+        reportSubtitle: "Based on your performance, here is your breakdown across 6 key physics concepts:",
+        restartBtn: "🔄 Restart Quiz",
+        mastered: "Mastered",
+        needsPractice: "Needs Practice",
+        categories: {
+          basic: "Basic Closed Loops",
+          series_parallel: "Series & Parallel Circuits",
+          short_circuit: "Short Circuits",
+          meters: "Ammeter & Voltmeter Placement",
+          components: "Rheostats & Variable Components",
+          polarity: "Cell Polarity & Voltage Alignment"
+        }
+      }
+    };
+
+    let currentLang = 'zh';
+
+    /* ==========================================================================
+       2. MNA PHYSICS ENGINE (MODIFIED NODAL ANALYSIS)
+       ========================================================================== */
+    function solveCircuit(nodesCount, components) {
+      const N = nodesCount - 1; // Node 0 is Ground (0V)
+      if (N <= 0) return { voltages: [0], currents: {} };
+
+      let G = Array.from({ length: N }, () => Array(N).fill(0));
+      let B = Array(N).fill(0);
+
+      components.forEach(comp => {
+        let u = comp.from;
+        let v = comp.to;
+
+        let R = 0.01;
+        if (comp.type === 'switch') R = comp.isOpen ? 1e8 : 0.001;
+        else if (comp.type === 'bulb') R = 10;
+        else if (comp.type === 'resistor') R = 20;
+        else if (comp.type === 'rheostat') R = comp.resistance !== undefined ? comp.resistance : 500;
+        else if (comp.type === 'ammeter') R = 0.001;
+        else if (comp.type === 'voltmeter') R = 1e7;
+        else if (comp.type === 'wire') R = 0.001;
+        else if (comp.type === 'cell') R = 0.001;
+
+        let g = 1 / R;
+        let E = (comp.type === 'cell') ? (comp.voltage !== undefined ? comp.voltage : 1.5) : 0;
+
+        let uIdx = u - 1;
+        let vIdx = v - 1;
+
+        if (uIdx >= 0) {
+          G[uIdx][uIdx] += g;
+          B[uIdx] += g * E;
+        }
+        if (vIdx >= 0) {
+          G[vIdx][vIdx] += g;
+          B[vIdx] -= g * E;
+        }
+        if (uIdx >= 0 && vIdx >= 0) {
+          G[uIdx][vIdx] -= g;
+          G[vIdx][uIdx] -= g;
+        }
+      });
+
+      // Gaussian Elimination with Partial Pivoting
+      let A = G.map((row, i) => [...row, B[i]]);
+      for (let i = 0; i < N; i++) {
+        let maxRow = i;
+        for (let k = i + 1; k < N; k++) {
+          if (Math.abs(A[k][i]) > Math.abs(A[maxRow][i])) maxRow = k;
+        }
+        [A[i], A[maxRow]] = [A[maxRow], A[i]];
+
+        if (Math.abs(A[i][i]) < 1e-12) continue;
+
+        for (let k = i + 1; k < N; k++) {
+          let c = -A[k][i] / A[i][i];
+          for (let j = i; j <= N; j++) {
+            if (i === j) A[k][j] = 0;
+            else A[k][j] += c * A[i][j];
+          }
+        }
+      }
+
+      let V_nodes = Array(N).fill(0);
+      for (let i = N - 1; i >= 0; i--) {
+        let sum = A[i][N];
+        for (let j = i + 1; j < N; j++) {
+          sum -= A[i][j] * V_nodes[j];
+        }
+        V_nodes[i] = Math.abs(A[i][i]) > 1e-12 ? sum / A[i][i] : 0;
+      }
+
+      let V = [0, ...V_nodes];
+      let currents = {};
+
+      components.forEach(comp => {
+        let Vu = V[comp.from];
+        let Vv = V[comp.to];
+        let E = (comp.type === 'cell') ? (comp.voltage !== undefined ? comp.voltage : 1.5) : 0;
+        let R = 0.01;
+        if (comp.type === 'switch') R = comp.isOpen ? 1e8 : 0.001;
+        else if (comp.type === 'bulb') R = 10;
+        else if (comp.type === 'resistor') R = 20;
+        else if (comp.type === 'rheostat') R = comp.resistance !== undefined ? comp.resistance : 500;
+        else if (comp.type === 'ammeter') R = 0.001;
+        else if (comp.type === 'voltmeter') R = 1e7;
+        else if (comp.type === 'wire') R = 0.001;
+        else if (comp.type === 'cell') R = 0.001;
+
+        let I = (Vu - Vv + E) / R;
+        currents[comp.id] = I;
+      });
+
+      return { voltages: V, currents };
+    }
+
+    /* ==========================================================================
+       3. 100 PROCEDURAL QUESTIONS POOL (10 TIERS x 10 VARIATIONS)
+       ========================================================================== */
+    function build100QuestionsPool() {
+      const pool = [];
+
+      // Helper to generate template questions easily
+      for (let tier = 1; tier <= 10; tier++) {
+        for (let varIdx = 1; varIdx <= 10; varIdx++) {
+          let q = createQuestionInstance(tier, varIdx);
+          pool.push(q);
+        }
+      }
+      return pool;
+    }
+
+    function createQuestionInstance(tier, v) {
+      let q = {
+        tier: tier,
+        variation: v,
+        id: `T${tier}_V${v}`,
+        categoryKey: 'basic',
+        nodesCount: 4,
+        components: [],
+        layoutWires: [],
+        explanation: { zh: "", en: "" }
+      };
+
+      if (tier === 1) {
+        // Tier 1: Basic Single-Loop Closed / Open Circuits
+        q.categoryKey = 'basic';
+        q.nodesCount = 4;
+        let isOpen = (v % 2 === 0);
+        q.components = [
+          { id: 'cell1', type: 'cell', from: 0, to: 1, x: 250, y: 240, rot: 0, voltage: 1.5, label: 'Cell (1.5V)' },
+          { id: 'sw1', type: 'switch', from: 1, to: 2, x: 100, y: 150, rot: 90, isOpen: isOpen, label: 'S1' },
+          { id: 'bulbX', type: 'bulb', from: 2, to: 3, x: 250, y: 60, rot: 0, isTarget: true, label: 'Bulb X' },
+          { id: 'wire1', type: 'wire', from: 3, to: 0, x: 400, y: 150, rot: 90 }
+        ];
+        q.layoutWires = [
+          { d: "M 250 240 L 100 240 L 100 150 M 100 150 L 100 60 L 250 60 M 250 60 L 400 60 L 400 240 L 250 240" }
+        ];
+        q.explanation = {
+          zh: isOpen ? "開關 S1 處於斷開狀態，導致電路形成斷路，沒有電流流過電燈泡 X。" : "開關 S1 已閉合，形成完整的閉合迴路，電流順暢流過，電燈泡 X 發光。",
+          en: isOpen ? "Switch S1 is OPEN, creating an open circuit. No current flows through Bulb X." : "Switch S1 is CLOSED, forming a complete closed loop. Current flows and Bulb X lights up."
+        };
+      }
+      else if (tier >= 2 && tier <= 4) {
+        // Series & Parallel
+        q.categoryKey = 'series_parallel';
+        q.nodesCount = 5;
+        let isParallel = (tier >= 3);
+        let s1Open = (v === 2 || v === 4 || v === 6);
+        let s2Open = (v === 3 || v === 4 || v === 7);
+
+        if (!isParallel) {
+          // Series Circuit
+          q.components = [
+            { id: 'cell1', type: 'cell', from: 0, to: 1, x: 250, y: 250, rot: 0, voltage: 1.5, label: 'Cell' },
+            { id: 'sw1', type: 'switch', from: 1, to: 2, x: 100, y: 155, rot: 90, isOpen: s1Open, label: 'S1' },
+            { id: 'bulbX', type: 'bulb', from: 2, to: 3, x: 200, y: 60, rot: 0, isTarget: true, label: 'Bulb X' },
+            { id: 'bulbY', type: 'bulb', from: 3, to: 4, x: 320, y: 60, rot: 0, label: 'Bulb Y' },
+            { id: 'wire1', type: 'wire', from: 4, to: 0, x: 400, y: 155, rot: 90 }
+          ];
+          q.layoutWires = [
+            { d: "M 250 250 L 100 250 L 100 155 M 100 155 L 100 60 L 200 60 M 200 60 L 320 60 L 400 60 L 400 250 L 250 250" }
+          ];
+          q.explanation = {
+            zh: s1Open ? "串聯電路中只要有一個開關斷開，整條電路即告中斷，電燈泡 X 不會發光。" : "所有元件串聯在同一閉合迴路上，電流連續流過，電燈泡 X 發光。",
+            en: s1Open ? "In a series circuit, an open switch breaks the entire single loop, so Bulb X stays off." : "All components are connected in series in a complete loop, allowing current to flow through Bulb X."
+          };
+        } else {
+          // Parallel Circuit
+          q.components = [
+            { id: 'cell1', type: 'cell', from: 0, to: 1, x: 250, y: 250, rot: 0, voltage: 1.5, label: 'Cell' },
+            { id: 'sw1', type: 'switch', from: 1, to: 2, x: 100, y: 150, rot: 90, isOpen: s1Open, label: 'Main S1' },
+            { id: 'bulbX', type: 'bulb', from: 2, to: 3, x: 250, y: 150, rot: 0, isTarget: true, label: 'Bulb X' },
+            { id: 'sw2', type: 'switch', from: 2, to: 4, x: 250, y: 60, rot: 0, isOpen: s2Open, label: 'S2' },
+            { id: 'bulbY', type: 'bulb', from: 4, to: 0, x: 380, y: 60, rot: 0, label: 'Bulb Y' }
+          ];
+          q.layoutWires = [
+            { d: "M 250 250 L 100 250 L 100 150 M 100 150 L 100 60 L 250 60 M 250 60 L 380 60 L 400 60 L 400 250 L 250 250 M 100 150 L 250 150 M 250 150 L 400 150" }
+          ];
+          q.explanation = {
+            zh: s1Open ? "主幹路上的開關 S1 斷開，切斷了電源總電流，因此分支上的電燈泡 X 不會發光。" : "主幹路閉合，電燈泡 X 位於獨立的平行支路上，不受其他支路影響，正常發光。",
+            en: s1Open ? "Main switch S1 is OPEN, cutting off total current supply to all parallel branches." : "Main switch is CLOSED. Bulb X sits on its own independent branch and receives current normally."
+          };
+        }
+      }
+      else if (tier === 5) {
+        // Short Circuit Scenarios
+        q.categoryKey = 'short_circuit';
+        q.nodesCount = 4;
+        let isShort = (v % 2 === 1);
+        q.components = [
+          { id: 'cell1', type: 'cell', from: 0, to: 1, x: 250, y: 250, rot: 0, voltage: 1.5, label: 'Cell' },
+          { id: 'sw1', type: 'switch', from: 1, to: 2, x: 100, y: 150, rot: 90, isOpen: false, label: 'S1' },
+          { id: 'bulbX', type: 'bulb', from: 2, to: 3, x: 250, y: 150, rot: 0, isTarget: true, label: 'Bulb X' },
+          { id: 'swShort', type: 'switch', from: 2, to: 3, x: 250, y: 60, rot: 0, isOpen: !isShort, label: 'Short Wire S2' }
+        ];
+        q.layoutWires = [
+          { d: "M 250 250 L 100 250 L 100 150 M 100 150 L 250 150 M 250 150 L 400 150 L 400 250 L 250 250 M 100 150 L 100 60 L 250 60 M 250 60 L 400 60 L 400 150" }
+        ];
+        q.explanation = {
+          zh: isShort ? "旁路開關 S2 閉合形成短路！電流選擇零電阻的導線路徑，完全繞過電燈泡 X，故燈泡熄滅。" : "短路開關 S2 保持斷開，電流必須流經電燈泡 X，因此燈泡正常發光。",
+          en: isShort ? "Switch S2 is CLOSED creating a zero-resistance short circuit path that bypasses Bulb X completely!" : "Short-circuit switch S2 is OPEN. Current is forced to pass through Bulb X, lighting it up."
+        };
+      }
+      else if (tier === 6 || tier === 7) {
+        // Meters (Ammeter & Voltmeter)
+        q.categoryKey = 'meters';
+        q.nodesCount = 4;
+        let isVoltmeter = (tier === 6);
+        let inSeries = (v % 2 === 1);
+
+        if (isVoltmeter) {
+          // Voltmeter placement
+          q.components = [
+            { id: 'cell1', type: 'cell', from: 0, to: 1, x: 250, y: 250, rot: 0, voltage: 1.5, label: 'Cell' },
+            { id: 'sw1', type: 'switch', from: 1, to: 2, x: 100, y: 150, rot: 90, isOpen: false, label: 'S1' },
+            { id: 'bulbX', type: 'bulb', from: inSeries ? 3 : 2, to: 0, x: 350, y: 150, rot: 90, isTarget: true, label: 'Bulb X' },
+            { id: 'meter1', type: 'voltmeter', from: 2, to: inSeries ? 3 : 0, x: inSeries ? 220 : 350, y: inSeries ? 150 : 50, rot: 0, label: 'Voltmeter (V)' }
+          ];
+          q.layoutWires = inSeries ? [
+            { d: "M 250 250 L 100 250 L 100 150 M 100 150 L 220 150 M 220 150 L 350 150 L 350 250 L 250 250" }
+          ] : [
+            { d: "M 250 250 L 100 250 L 100 150 L 100 50 L 350 50 L 350 150 L 350 250 L 250 250 M 100 150 L 350 150" }
+          ];
+          q.explanation = {
+            zh: inSeries ? "電壓表內阻極高（約10MΩ），錯誤地串聯在電路中會阻擋絕大部分電流，導致燈泡 X 無法發光。" : "電壓表正確地並聯在電路兩端，其高內阻不會影響流經燈泡 X 的主幹電流，燈泡正常發光。",
+            en: inSeries ? "A Voltmeter has extremely high resistance (~10MΩ). Connected in SERIES, it blocks current completely." : "The Voltmeter is correctly connected in PARALLEL. Its high resistance does not affect current through Bulb X."
+          };
+        } else {
+          // Ammeter placement
+          q.components = [
+            { id: 'cell1', type: 'cell', from: 0, to: 1, x: 250, y: 250, rot: 0, voltage: 1.5, label: 'Cell' },
+            { id: 'sw1', type: 'switch', from: 1, to: 2, x: 100, y: 150, rot: 90, isOpen: false, label: 'S1' },
+            { id: 'bulbX', type: 'bulb', from: 2, to: 3, x: 250, y: 150, rot: 0, isTarget: true, label: 'Bulb X' },
+            { id: 'meter1', type: 'ammeter', from: inSeries ? 3 : 2, to: 0, x: inSeries ? 400 : 250, y: inSeries ? 150 : 50, rot: inSeries ? 90 : 0, label: 'Ammeter (A)' }
+          ];
+          q.layoutWires = inSeries ? [
+            { d: "M 250 250 L 100 250 L 100 150 M 100 150 L 250 150 M 250 150 L 400 150 L 400 250 L 250 250" }
+          ] : [
+            { d: "M 250 250 L 100 250 L 100 150 M 100 150 L 250 150 M 250 150 L 400 150 L 400 250 L 250 250 M 100 150 L 100 50 L 250 50 M 250 50 L 400 50 L 400 150" }
+          ];
+          q.explanation = {
+            zh: inSeries ? "電流表內阻接近零，正確串聯在電路中能精確量度電流，且不阻礙電燈泡 X 發光。" : "電流表內阻極低，錯誤並聯在燈泡 X 兩端會造成短路！電流全數繞過燈泡，導致燈泡熄滅。",
+            en: inSeries ? "An Ammeter has near-zero resistance and is correctly connected in SERIES, allowing current to flow." : "An Ammeter has near-zero resistance. Connected in PARALLEL across Bulb X, it creates a short circuit!"
+          };
+        }
+      }
+      else if (tier === 8) {
+        // Rheostats & Variable Resistance
+        q.categoryKey = 'components';
+        q.nodesCount = 4;
+        let isMaxResistance = (v % 2 === 1);
+        q.components = [
+          { id: 'cell1', type: 'cell', from: 0, to: 1, x: 250, y: 250, rot: 0, voltage: 1.5, label: 'Cell' },
+          { id: 'sw1', type: 'switch', from: 1, to: 2, x: 100, y: 150, rot: 90, isOpen: false, label: 'S1' },
+          { id: 'rheo1', type: 'rheostat', from: 2, to: 3, x: 250, y: 150, rot: 0, resistance: isMaxResistance ? 1000 : 5, label: isMaxResistance ? 'Rheostat (Max R)' : 'Rheostat (Min R)' },
+          { id: 'bulbX', type: 'bulb', from: 3, to: 0, x: 400, y: 150, rot: 90, isTarget: true, label: 'Bulb X' }
+        ];
+        q.layoutWires = [
+          { d: "M 250 250 L 100 250 L 100 150 M 100 150 L 250 150 M 250 150 L 400 150 L 400 250 L 250 250" }
+        ];
+        q.explanation = {
+          zh: isMaxResistance ? "滑動變阻器調至最大電阻（1000Ω），大幅削弱迴路電流至低於發光門檻，電燈泡 X 不會發光。" : "滑動變阻器調至極小電阻，電路總電阻低，足夠電流流過，電燈泡 X 正常發光。",
+          en: isMaxResistance ? "The Rheostat is set to MAXIMUM resistance (1000Ω), reducing current below the lighting threshold." : "The Rheostat is set to MINIMUM resistance, allowing sufficient current to flow through Bulb X."
+        };
+      }
+      else if (tier === 9) {
+        // Cell Polarity Opposing
+        q.categoryKey = 'polarity';
+        q.nodesCount = 4;
+        let isOpposing = (v % 2 === 1);
+        q.components = [
+          { id: 'cell1', type: 'cell', from: 0, to: 1, x: 180, y: 250, rot: 0, voltage: 1.5, label: 'Cell 1 (+)' },
+          { id: 'cell2', type: 'cell', from: 1, to: 2, x: 320, y: 250, rot: 0, voltage: isOpposing ? -1.5 : 1.5, label: isOpposing ? 'Cell 2 (Opposing)' : 'Cell 2 (Series)' },
+          { id: 'sw1', type: 'switch', from: 2, to: 3, x: 100, y: 150, rot: 90, isOpen: false, label: 'S1' },
+          { id: 'bulbX', type: 'bulb', from: 3, to: 0, x: 250, y: 60, rot: 0, isTarget: true, label: 'Bulb X' }
+        ];
+        q.layoutWires = [
+          { d: "M 180 250 L 100 250 L 100 150 M 100 150 L 100 60 L 250 60 M 250 60 L 400 60 L 400 250 L 320 250" }
+        ];
+        q.explanation = {
+          zh: isOpposing ? "兩枚電池正極相對（正極對正極），電動勢互相抵銷（1.5V - 1.5V = 0V），淨電壓為零，燈泡 X 不會發光。" : "兩枚電池以正確方向順向串聯（正極接負極），電壓疊加至 3.0V，電燈泡 X 明亮發光。",
+          en: isOpposing ? "The two cells are connected OPPOSING each other (+ to +). Their voltages cancel out (1.5V - 1.5V = 0V)." : "The cells are connected in series correctly (+ to -). Total voltage doubles to 3.0V, driving bright current."
+        };
+      }
+      else {
+        // Tier 10: Master Complex Multi-Branch Circuit
+        q.categoryKey = 'complex';
+        q.nodesCount = 6;
+        let s1Open = (v === 1 || v === 3 || v === 5);
+        let shortActive = (v === 2 || v === 3 || v === 7);
+        q.components = [
+          { id: 'cell1', type: 'cell', from: 0, to: 1, x: 250, y: 260, rot: 0, voltage: 1.5, label: 'Cell' },
+          { id: 'sw1', type: 'switch', from: 1, to: 2, x: 90, y: 160, rot: 90, isOpen: s1Open, label: 'Main S1' },
+          { id: 'bulbX', type: 'bulb', from: 2, to: 3, x: 250, y: 160, rot: 0, isTarget: true, label: 'Bulb X' },
+          { id: 'swShort', type: 'switch', from: 2, to: 3, x: 250, y: 70, rot: 0, isOpen: !shortActive, label: 'Short Switch S2' },
+          { id: 'meter1', type: 'ammeter', from: 3, to: 0, x: 410, y: 160, rot: 90, label: 'Ammeter' }
+        ];
+        q.layoutWires = [
+          { d: "M 250 260 L 90 260 L 90 160 M 90 160 L 250 160 M 250 160 L 410 160 L 410 260 L 250 260 M 90 160 L 90 70 L 250 70 M 250 70 L 410 70 L 410 160" }
+        ];
+        q.explanation = {
+          zh: s1Open ? "主幹開關 S1 斷開導致總電路中斷。" : (shortActive ? "旁路開關 S2 閉合造成短路，電流繞過燈泡 X。" : "主開關閉合且無短路，電流通過安培表與燈泡 X，燈泡發光。"),
+          en: s1Open ? "Main switch S1 is open, cutting off main power." : (shortActive ? "Short switch S2 is closed, creating a bypass short circuit across Bulb X." : "Main switch closed without short circuit; current flows smoothly through Bulb X.")
+        };
+      }
+
+      return q;
+    }
+
+    /* ==========================================================================
+       4. SVG RENDERING ENGINE FOR CIRCUIT SYMBOLS
+       ========================================================================== */
+    function renderCircuitSVG(svgEl, question, currentSwitchesState, isLit) {
+      svgEl.innerHTML = '';
+
+      // Draw background wires
+      question.layoutWires.forEach(w => {
+        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        path.setAttribute("d", w.d);
+        path.setAttribute("class", "wire");
+        svgEl.appendChild(path);
+      });
+
+      // Solve live circuit currents for sandbox
+      const liveComponents = question.components.map(c => {
+        if (c.type === 'switch' && currentSwitchesState[c.id] !== undefined) {
+          return { ...c, isOpen: currentSwitchesState[c.id] };
+        }
+        return c;
+      });
+
+      const { currents } = solveCircuit(question.nodesCount, liveComponents);
+
+      // Check target bulb current for glow effect
+      const targetComp = liveComponents.find(c => c.isTarget);
+      const liveIsLit = targetComp ? (Math.abs(currents[targetComp.id] || 0) >= 0.04) : false;
+
+      // Draw Animated Current Flow Paths if current exists
+      question.layoutWires.forEach((w, idx) => {
+        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        path.setAttribute("d", w.d);
+        path.setAttribute("class", "current-flow");
+        // Show current flow if target bulb or main branch carries current
+        if (!liveIsLit && Object.values(currents).every(I => Math.abs(I) < 0.02)) {
+          path.style.display = 'none';
+        }
+        svgEl.appendChild(path);
+      });
+
+      // Draw Components
+      liveComponents.forEach(comp => {
+        const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        g.setAttribute("transform", `translate(${comp.x}, ${comp.y}) rotate(${comp.rot || 0})`);
+
+        if (comp.type === 'cell') {
+          drawCellSVG(g, comp);
+        } else if (comp.type === 'bulb') {
+          drawBulbSVG(g, comp, comp.isTarget ? liveIsLit : liveIsLit);
+        } else if (comp.type === 'switch') {
+          drawSwitchSVG(g, comp, comp.isOpen);
+        } else if (comp.type === 'ammeter' || comp.type === 'voltmeter') {
+          drawMeterSVG(g, comp);
+        } else if (comp.type === 'rheostat') {
+          drawRheostatSVG(g, comp);
+        }
+
+        svgEl.appendChild(g);
+      });
+    }
+
+    function drawCellSVG(g, comp) {
+      const isOpposing = comp.voltage < 0;
+      // IEC Cell Symbol: Long thin line (+), short thick line (-)
+      g.innerHTML = `
+        <line x1="-20" y1="0" x2="-8" y2="0" class="wire"/>
+        <line x1="8" y1="0" x2="20" y2="0" class="wire"/>
+        <!-- Long thin plate (+) -->
+        <line x1="${isOpposing ? '8' : '-8'}" y1="-16" x2="${isOpposing ? '8' : '-8'}" y2="16" stroke="#0f172a" stroke-width="2"/>
+        <!-- Short thick plate (-) -->
+        <line x1="${isOpposing ? '-8' : '8'}" y1="-10" x2="${isOpposing ? '-8' : '8'}" y2="10" stroke="#0f172a" stroke-width="4.5"/>
+        <text x="0" y="-22" class="component-label">${comp.label || 'Cell'}</text>
+        <text x="${isOpposing ? '14' : '-16'}" y="18" font-size="11" font-weight="700" fill="#2563eb">+</text>
+      `;
+    }
+
+    function drawBulbSVG(g, comp, isLit) {
+      // IEC Lamp standard symbol: Circle with curved filament loop / cross inside
+      const glowEffect = isLit ? `
+        <circle cx="0" cy="0" r="24" fill="rgba(234, 179, 8, 0.25)"/>
+        <circle cx="0" cy="0" r="18" fill="#fef08a" stroke="#eab308" stroke-width="2.5"/>
+      ` : `
+        <circle cx="0" cy="0" r="18" fill="#ffffff" stroke="#334155" stroke-width="2.5"/>
+      `;
+
+      g.innerHTML = `
+        <line x1="-30" y1="0" x2="-18" y2="0" class="wire"/>
+        <line x1="18" y1="0" x2="30" y2="0" class="wire"/>
+        ${glowEffect}
+        <!-- IEC Cross Filament -->
+        <line x1="-11" y1="-11" x2="11" y2="11" stroke="${isLit ? '#b45309' : '#334155'}" stroke-width="2"/>
+        <line x1="-11" y1="11" x2="11" y2="-11" stroke="${isLit ? '#b45309' : '#334155'}" stroke-width="2"/>
+        <text x="0" y="-25" class="component-label" font-weight="700" fill="${comp.isTarget ? '#d97706' : '#334155'}">
+          ${comp.label || 'Bulb'} ${comp.isTarget ? '★' : ''}
+        </text>
+      `;
+    }
+
+    function drawSwitchSVG(g, comp, isOpen) {
+      g.innerHTML = `
+        <line x1="-30" y1="0" x2="-16" y2="0" class="wire"/>
+        <line x1="16" y1="0" x2="30" y2="0" class="wire"/>
+        <circle cx="-16" cy="0" r="4" fill="#0f172a"/>
+        <circle cx="16" cy="0" r="4" fill="#0f172a"/>
+        <!-- Switch lever -->
+        <line x1="-16" y1="0" x2="${isOpen ? '10' : '16'}" y2="${isOpen ? '-16' : '0'}"
+              stroke="#2563eb" stroke-width="3.5" stroke-linecap="round" class="switch-lever"/>
+        <text x="0" y="-22" class="component-label">${comp.label || 'Switch'}</text>
+      `;
+    }
+
+    function drawMeterSVG(g, comp) {
+      const isAmmeter = comp.type === 'ammeter';
+      g.innerHTML = `
+        <line x1="-30" y1="0" x2="-18" y2="0" class="wire"/>
+        <line x1="18" y1="0" x2="30" y2="0" class="wire"/>
+        <circle cx="0" cy="0" r="18" fill="#ffffff" stroke="${isAmmeter ? '#059669' : '#d97706'}" stroke-width="2.5"/>
+        <text x="0" y="1" text-anchor="middle" dominant-baseline="middle" font-size="16" font-weight="800" fill="${isAmmeter ? '#059669' : '#d97706'}">
+          ${isAmmeter ? 'A' : 'V'}
+        </text>
+        <text x="0" y="-24" class="component-label">${comp.label}</text>
+      `;
+    }
+
+    function drawRheostatSVG(g, comp) {
+      g.innerHTML = `
+        <line x1="-30" y1="0" x2="-18" y2="0" class="wire"/>
+        <line x1="18" y1="0" x2="30" y2="0" class="wire"/>
+        <rect x="-18" y="-9" width="36" height="18" fill="#ffffff" stroke="#334155" stroke-width="2"/>
+        <!-- Diagonal arrow for Rheostat -->
+        <line x1="-16" y1="14" x2="16" y2="-14" stroke="#2563eb" stroke-width="2.5" marker-end="url(#arrow)"/>
+        <text x="0" y="-18" class="component-label">${comp.label}</text>
+      `;
+    }
+
+    /* ==========================================================================
+       5. QUIZ STATE & CONTROLLER LOGIC
+       ========================================================================== */
+    let quizPool = [];
+    let activeQuestions = [];
+    let currentIndex = 0;
+    let score = 0;
+    let userAnswers = []; // records answer correctness and category
+    let liveSwitches = {};
+
+    function initApp() {
+      quizPool = build100QuestionsPool();
+      startNewQuiz();
+    }
+
+    function startNewQuiz() {
+      // Pick 1 random question per Tier (Tiers 1 to 10)
+      activeQuestions = [];
+      for (let t = 1; t <= 10; t++) {
+        const tierPool = quizPool.filter(q => q.tier === t);
+        const randomQ = tierPool[Math.floor(Math.random() * tierPool.length)];
+        activeQuestions.push(randomQ);
+      }
+
+      currentIndex = 0;
+      score = 0;
+      userAnswers = [];
+
+      document.getElementById('quiz-mode-container').classList.remove('hidden');
+      document.getElementById('report-card').classList.add('hidden');
+
+      renderCurrentQuestion();
+    }
+
+    function renderCurrentQuestion() {
+      const q = activeQuestions[currentIndex];
+
+      // Initialize live switch states for sandbox
+      liveSwitches = {};
+      q.components.forEach(c => {
+        if (c.type === 'switch') {
+          liveSwitches[c.id] = c.isOpen;
+        }
+      });
+
+      // Update UI Header & Progress
+      const t = I18N[currentLang];
+      document.getElementById('progress-text').innerText = t.progress.replace('{cur}', currentIndex + 1).replace('{total}', 10);
+      document.getElementById('score-text').innerText = t.score.replace('{score}', score);
+      document.getElementById('progress-fill').style.width = `${((currentIndex + 1) / 10) * 100}%`;
+
+      document.getElementById('tier-badge').innerText = `Tier ${q.tier}`;
+      document.getElementById('question-prompt').innerText = t.prompt;
+
+      // Solve initial physics state
+      const { currents } = solveCircuit(q.nodesCount, q.components);
+      const targetComp = q.components.find(c => c.isTarget);
+      const isLit = targetComp ? (Math.abs(currents[targetComp.id] || 0) >= 0.04) : false;
+
+      // Render SVG
+      const svgEl = document.getElementById('circuit-svg');
+      renderCircuitSVG(svgEl, q, liveSwitches, isLit);
+
+      // Reset option buttons
+      const btnYes = document.getElementById('btn-yes');
+      const btnNo = document.getElementById('btn-no');
+      btnYes.disabled = false;
+      btnNo.disabled = false;
+      btnYes.className = 'btn-option';
+      btnNo.className = 'btn-option';
+
+      // Hide Feedback Section
+      document.getElementById('feedback-section').classList.add('hidden');
+    }
+
+    function submitAnswer(userChoice) {
+      const q = activeQuestions[currentIndex];
+      const { currents } = solveCircuit(q.nodesCount, q.components);
+      const targetComp = q.components.find(c => c.isTarget);
+      const actualIsLit = targetComp ? (Math.abs(currents[targetComp.id] || 0) >= 0.04) : false;
+
+      const isCorrect = (userChoice === actualIsLit);
+      if (isCorrect) score += 1;
+
+      userAnswers.push({
+        tier: q.tier,
+        categoryKey: q.categoryKey,
+        isCorrect: isCorrect
+      });
+
+      // Disable buttons and show selection styling
+      const btnYes = document.getElementById('btn-yes');
+      const btnNo = document.getElementById('btn-no');
+      btnYes.disabled = true;
+      btnNo.disabled = true;
+
+      if (userChoice) {
+        btnYes.classList.add(isCorrect ? 'selected-correct' : 'selected-wrong');
+      } else {
+        btnNo.classList.add(isCorrect ? 'selected-correct' : 'selected-wrong');
+      }
+
+      // Show Feedback Card
+      const t = I18N[currentLang];
+      const feedbackSec = document.getElementById('feedback-section');
+      const feedbackHeader = document.getElementById('feedback-header');
+      const feedbackTitle = document.getElementById('feedback-title');
+      const feedbackIcon = document.getElementById('feedback-icon');
+      const expText = document.getElementById('explanation-text');
+
+      feedbackSec.classList.remove('hidden');
+      if (isCorrect) {
+        feedbackHeader.className = 'feedback-header correct';
+        feedbackIcon.innerText = '✅';
+        feedbackTitle.innerText = t.correct;
+      } else {
+        feedbackHeader.className = 'feedback-header wrong';
+        feedbackIcon.innerText = '❌';
+        feedbackTitle.innerText = t.wrong;
+      }
+
+      expText.innerText = q.explanation[currentLang];
+
+      // Build Sandbox Buttons
+      buildSandboxControls(q);
+
+      // Update Next button label
+      const btnNext = document.getElementById('btn-next');
+      btnNext.innerText = (currentIndex === 9) ? t.finishBtn : t.nextBtn;
+    }
+
+    function buildSandboxControls(q) {
+      const container = document.getElementById('sandbox-btn-group');
+      container.innerHTML = '';
+
+      const switchComps = q.components.filter(c => c.type === 'switch');
+      if (switchComps.length === 0) {
+        container.innerText = '—';
+        return;
+      }
+
+      const t = I18N[currentLang];
+      switchComps.forEach(sw => {
+        const btn = document.createElement('button');
+        btn.className = 'btn-toggle-switch';
+        btn.innerText = t.toggleSwitch.replace('{name}', sw.label || sw.id);
+        btn.onclick = () => {
+          liveSwitches[sw.id] = !liveSwitches[sw.id];
+          // Re-render SVG with live switches
+          const svgEl = document.getElementById('circuit-svg');
+          renderCircuitSVG(svgEl, q, liveSwitches, false);
+        };
+        container.appendChild(btn);
+      });
+    }
+
+    function nextQuestion() {
+      if (currentIndex < 9) {
+        currentIndex++;
+        renderCurrentQuestion();
+      } else {
+        showDiagnosticReport();
+      }
+    }
+
+    function showDiagnosticReport() {
+      document.getElementById('quiz-mode-container').classList.add('hidden');
+      const reportCard = document.getElementById('report-card');
+      reportCard.classList.remove('hidden');
+
+      document.getElementById('final-score-circle').innerText = `${score}/10`;
+
+      // Group performance by Category
+      const categories = ['basic', 'series_parallel', 'short_circuit', 'meters', 'components', 'polarity'];
+      const stats = {};
+      categories.forEach(cat => { stats[cat] = { total: 0, correct: 0 }; });
+
+      userAnswers.forEach(ans => {
+        if (stats[ans.categoryKey]) {
+          stats[ans.categoryKey].total += 1;
+          if (ans.isCorrect) stats[ans.categoryKey].correct += 1;
+        }
+      });
+
+      const listContainer = document.getElementById('breakdown-list');
+      listContainer.innerHTML = '';
+
+      const t = I18N[currentLang];
+      categories.forEach(catKey => {
+        const item = stats[catKey];
+        if (item.total === 0) return;
+
+        const pct = Math.round((item.correct / item.total) * 100);
+        const isMastered = pct >= 70;
+
+        const catRow = document.createElement('div');
+        catRow.className = 'breakdown-item';
+        catRow.innerHTML = `
+          <div class="breakdown-meta">
+            <span>${t.categories[catKey]}</span>
+            <div>
+              <span style="margin-right:8px;">${item.correct}/${item.total} (${pct}%)</span>
+              <span class="status-tag ${isMastered ? 'tag-mastered' : 'tag-practice'}">
+                ${isMastered ? t.mastered : t.needsPractice}
+              </span>
+            </div>
+          </div>
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill" style="width: ${pct}%; background: ${isMastered ? 'var(--success)' : 'var(--warning)'};"></div>
+          </div>
+        `;
+        listContainer.appendChild(catRow);
+      });
+    }
+
+    function restartQuiz() {
+      startNewQuiz();
+    }
+
+    function toggleLanguage() {
+      currentLang = (currentLang === 'zh') ? 'en' : 'zh';
+      updateAppLanguage();
+    }
+
+    function updateAppLanguage() {
+      const t = I18N[currentLang];
+      document.getElementById('app-title').innerText = t.appTitle;
+      document.getElementById('app-subtitle').innerText = t.appSubtitle;
+      document.getElementById('btn-lang').innerText = t.langBtn;
+
+      document.getElementById('label-yes').innerText = t.yes;
+      document.getElementById('label-no').innerText = t.no;
+      document.getElementById('sandbox-label').innerText = t.sandboxLabel;
+      document.getElementById('report-title').innerText = t.reportTitle;
+      document.getElementById('report-subtitle').innerText = t.reportSubtitle;
+      document.getElementById('btn-restart').innerText = t.restartBtn;
+
+      if (!document.getElementById('quiz-mode-container').classList.contains('hidden')) {
+        renderCurrentQuestion();
+      } else {
+        showDiagnosticReport();
+      }
+    }
+
+    // Initialize on page load
+    window.onload = initApp;
+  </script>
+</body>
+</html>
