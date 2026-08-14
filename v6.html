@@ -1,0 +1,1254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HK Junior Science - Electric Circuit Quiz</title>
+    <style>
+        /* CSS Reset and CSS Variables for Light Theme */
+        :root {
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #475569;
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --success: #16a34a;
+            --success-bg: #f0fdf4;
+            --danger: #dc2626;
+            --danger-bg: #fef2f2;
+            --warning: #ca8a04;
+            --warning-bg: #fefce8;
+            --border: #e2e8f0;
+            --wire-color: #334155;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.06);
+            --shadow-lg: 0 10px 25px rgba(0,0,0,0.1);
+            --radius-md: 12px;
+            --radius-lg: 16px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 16px;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 860px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        header {
+            background: var(--card-bg);
+            border-radius: var(--radius-lg);
+            padding: 20px 24px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-icon {
+            width: 40px;
+            height: 40px;
+            background: #dbeafe;
+            color: var(--primary);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 20px;
+        }
+
+        .brand-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .brand-subtitle {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 18px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            border-radius: var(--radius-md);
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1.5px solid var(--border);
+            color: var(--text-main);
+        }
+
+        .btn-outline:hover {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+        }
+
+        .progress-card {
+            background: var(--card-bg);
+            border-radius: var(--radius-md);
+            padding: 16px 20px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .progress-bar-bg {
+            height: 10px;
+            width: 100%;
+            background: #e2e8f0;
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: var(--primary);
+            width: 10%;
+            border-radius: 999px;
+            transition: width 0.3s ease;
+        }
+
+        .quiz-card {
+            background: var(--card-bg);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .level-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background: #eff6ff;
+            color: var(--primary);
+            border: 1px solid #bfdbfe;
+        }
+
+        .question-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-top: 6px;
+            line-height: 1.4;
+        }
+
+        .circuit-canvas-container {
+            width: 100%;
+            background: #f8fafc;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 320px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+            position: relative;
+        }
+
+        .circuit-svg {
+            width: 100%;
+            max-width: 620px;
+            height: auto;
+            display: block;
+        }
+
+        .answer-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .btn-choice {
+            padding: 16px 20px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            border-radius: var(--radius-md);
+            border: 2px solid var(--border);
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-choice:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-yes:hover:not(:disabled) {
+            border-color: var(--success);
+            background: var(--success-bg);
+            color: var(--success);
+        }
+
+        .btn-no:hover:not(:disabled) {
+            border-color: var(--danger);
+            background: var(--danger-bg);
+            color: var(--danger);
+        }
+
+        .btn-choice:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .feedback-box {
+            display: none;
+            padding: 20px;
+            border-radius: var(--radius-md);
+            border: 1.5px solid;
+            animation: fadeIn 0.3s ease-in-out;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .feedback-box.correct {
+            display: flex;
+            background: var(--success-bg);
+            border-color: #86efac;
+            color: #14532d;
+        }
+
+        .feedback-box.incorrect {
+            display: flex;
+            background: var(--danger-bg);
+            border-color: #fca5a5;
+            color: #7f1d1d;
+        }
+
+        .feedback-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        .feedback-text {
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .feedback-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 8px;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 16px;
+        }
+
+        .modal-card {
+            background: white;
+            border-radius: var(--radius-lg);
+            width: 100%;
+            max-width: 720px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 24px;
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            position: relative;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 12px;
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 6px;
+        }
+
+        .close-btn:hover {
+            background: #f1f5f9;
+        }
+
+        .symbols-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        .symbol-card {
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            background: #f8fafc;
+        }
+
+        .symbol-svg-preview {
+            width: 80px;
+            height: 60px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .symbol-info h4 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 4px;
+        }
+
+        .symbol-info p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            line-height: 1.3;
+        }
+
+        /* Results Screen */
+        .results-card {
+            display: none;
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: 32px 24px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border);
+            text-align: center;
+            flex-direction: column;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .score-circle {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background: #eff6ff;
+            border: 6px solid var(--primary);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .score-num {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            line-height: 1;
+        }
+
+        .score-total {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .review-list {
+            width: 100%;
+            text-align: left;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .review-item {
+            padding: 14px 16px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            background: #f8fafc;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .review-item.is-correct {
+            border-left: 5px solid var(--success);
+        }
+
+        .review-item.is-wrong {
+            border-left: 5px solid var(--danger);
+        }
+
+        .review-item-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            font-weight: 700;
+        }
+
+        .review-item-desc {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 600px) {
+            .answer-controls {
+                grid-template-columns: 1fr;
+            }
+            .header-actions {
+                width: 100%;
+                justify-content: flex-end;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <header>
+            <div class="brand">
+                <div class="brand-icon">⚡</div>
+                <div>
+                    <div class="brand-title">HK Junior Science</div>
+                    <div class="brand-subtitle">Electric Circuit Quiz • S1-S3 Science</div>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-outline" id="symbolsBtn">📖 Symbols Legend</button>
+            </div>
+        </header>
+
+        <div class="progress-card" id="progressCard">
+            <div class="progress-header">
+                <span id="questionNumText">Question 1 of 10</span>
+                <span id="scoreTrackerText">Score: 0 / 10</span>
+            </div>
+            <div class="progress-bar-bg">
+                <div class="progress-bar-fill" id="progressBarFill"></div>
+            </div>
+        </div>
+
+        <main class="quiz-card" id="quizCard">
+            <div class="question-header">
+                <div>
+                    <span class="level-badge" id="levelBadge">Level 1 • Beginner</span>
+                    <h2 class="question-title" id="questionText">Will light bulb X light up when the circuit is connected?</h2>
+                </div>
+            </div>
+
+            <!-- SVG Circuit Display Area -->
+            <div class="circuit-canvas-container" id="canvasContainer">
+                <!-- SVG dynamically injected here -->
+            </div>
+
+            <!-- Answer Buttons -->
+            <div class="answer-controls" id="answerControls">
+                <button class="btn-choice btn-yes" id="btnYes">
+                    <span>💡</span> YES, it lights up
+                </button>
+                <button class="btn-choice btn-no" id="btnNo">
+                    <span>❌</span> NO, it stays dark
+                </button>
+            </div>
+
+            <!-- Answer Feedback & Explanation Box -->
+            <div class="feedback-box" id="feedbackBox">
+                <div class="feedback-header" id="feedbackHeader">
+                    <span id="feedbackIcon">🎉</span>
+                    <span id="feedbackTitle">Correct!</span>
+                </div>
+                <div class="feedback-text" id="feedbackText">
+                    Explanation goes here...
+                </div>
+                <div class="feedback-actions">
+                    <button class="btn btn-primary" id="btnNext">Next Question ➔</button>
+                </div>
+            </div>
+        </main>
+
+        <div class="results-card" id="resultsCard">
+            <div style="font-size: 2.5rem;">🏆</div>
+            <h2>Quiz Completed!</h2>
+            <div class="score-circle">
+                <span class="score-num" id="finalScoreNum">0</span>
+                <span class="score-total">out of 10</span>
+            </div>
+            <p id="performanceBadge" style="font-size: 1.1rem; font-weight: 600; color: var(--text-main);"></p>
+            <p id="performanceComment" style="color: var(--text-muted); max-width: 500px; font-size: 0.95rem;"></p>
+
+            <div class="review-list" id="reviewList">
+                <!-- Detailed review items -->
+            </div>
+
+            <button class="btn btn-primary" id="btnRestart" style="margin-top: 12px; padding: 12px 28px;">
+                🔄 Try Quiz Again
+            </button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="symbolsModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 class="modal-title">HK Secondary Science Circuit Symbols</h3>
+                <button class="close-btn" id="closeModalBtn">&times;</button>
+            </div>
+            <div class="symbols-grid" id="symbolsGrid">
+                <!-- Symbols loaded dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * SVG Circuit Symbol Drawing Library
+         * Adheres strictly to IEC & HK Junior Secondary Science standard symbols.
+         * Components placed on vertical wire segments are rotated by 90°.
+         * All symbols include white background masks to cover underlying wire lines.
+         */
+
+        // Light Bulb Symbol: Circle with filament loop curve inside
+        function drawBulb(x, y, rot, isTarget, label, isLit) {
+            const litGlow = isLit ? `
+                <circle cx="0" cy="0" r="28" fill="#fef08a" opacity="0.6"/>
+                <circle cx="0" cy="0" r="22" fill="#fde047" opacity="0.8"/>
+                <line x1="-28" y1="-28" x2="-20" y2="-20" stroke="#eab308" stroke-width="2.5" stroke-linecap="round"/>
+                <line x1="28" y1="-28" x2="20" y2="-20" stroke="#eab308" stroke-width="2.5" stroke-linecap="round"/>
+                <line x1="-28" y1="28" x2="-20" y2="20" stroke="#eab308" stroke-width="2.5" stroke-linecap="round"/>
+                <line x1="28" y1="28" x2="20" y2="20" stroke="#eab308" stroke-width="2.5" stroke-linecap="round"/>
+            ` : '';
+
+            const badge = isTarget ? `
+                <g transform="translate(0, -32)">
+                    <rect x="-26" y="-12" width="52" height="22" rx="6" fill="#dc2626"/>
+                    <text x="0" y="3" text-anchor="middle" fill="#ffffff" font-weight="bold" font-size="12">Bulb X</text>
+                </g>
+            ` : (label ? `
+                <text x="0" y="-26" text-anchor="middle" fill="#334155" font-weight="700" font-size="13" paint-order="stroke fill" stroke="#ffffff" stroke-width="3px" stroke-linecap="round" stroke-linejoin="round">${label}</text>
+            ` : '');
+
+            return `
+                <g transform="translate(${x}, ${y})">
+                    ${litGlow}
+                    <g transform="rotate(${rot})">
+                        <!-- White background mask to cover underlying wire line -->
+                        <circle cx="0" cy="0" r="18.5" fill="#ffffff" stroke="none"/>
+                        <line x1="-30" y1="0" x2="-18" y2="0" stroke="#334155" stroke-width="3"/>
+                        <line x1="18" y1="0" x2="30" y2="0" stroke="#334155" stroke-width="3"/>
+                        <circle cx="0" cy="0" r="18" stroke="#1e293b" stroke-width="2.5" fill="${isLit ? '#fef9c3' : '#ffffff'}"/>
+                        <!-- Filament Loop Symbol inside Circle -->
+                        <path d="M -18,0 L -7,0 C -7,-12 -2,-13 -2,-4 C -2,-1 2,-1 2,-4 C 2,-13 7,-12 7,0 L 18,0" 
+                              stroke="${isLit ? '#b45309' : '#1e293b'}" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+                    </g>
+                    ${badge}
+                </g>
+            `;
+        }
+
+        // Cell Symbol: Long thin (+) line, short thick (-) line
+        function drawCell(x, y, rot, label) {
+            return `
+                <g transform="translate(${x}, ${y})">
+                    <g transform="rotate(${rot})">
+                        <rect x="-24" y="-20" width="48" height="40" fill="#ffffff" stroke="none"/>
+                        <line x1="-30" y1="0" x2="-6" y2="0" stroke="#334155" stroke-width="3"/>
+                        <line x1="6" y1="0" x2="30" y2="0" stroke="#334155" stroke-width="3"/>
+                        <line x1="-6" y1="-18" x2="-6" y2="18" stroke="#1e293b" stroke-width="2.5"/>
+                        <line x1="6" y1="-10" x2="6" y2="10" stroke="#1e293b" stroke-width="4.5"/>
+                    </g>
+                    <text x="${rot === 90 ? -22 : -14}" y="${rot === 90 ? -12 : -20}" text-anchor="middle" fill="#dc2626" font-weight="bold" font-size="14" paint-order="stroke fill" stroke="#ffffff" stroke-width="3px">+</text>
+                    <text x="${rot === 90 ? 22 : 14}" y="${rot === 90 ? -12 : -20}" text-anchor="middle" fill="#2563eb" font-weight="bold" font-size="14" paint-order="stroke fill" stroke="#ffffff" stroke-width="3px">-</text>
+                    ${label ? `<text x="0" y="32" text-anchor="middle" fill="#475569" font-size="12" font-weight="600" paint-order="stroke fill" stroke="#ffffff" stroke-width="3px">${label}</text>` : ''}
+                </g>
+            `;
+        }
+
+        // Battery Symbol: Two cells in series with dashed connection
+        function drawBattery(x, y, rot, label) {
+            return `
+                <g transform="translate(${x}, ${y})">
+                    <g transform="rotate(${rot})">
+                        <rect x="-30" y="-20" width="60" height="40" fill="#ffffff" stroke="none"/>
+                        <line x1="-38" y1="0" x2="-14" y2="0" stroke="#334155" stroke-width="3"/>
+                        <line x1="14" y1="0" x2="38" y2="0" stroke="#334155" stroke-width="3"/>
+                        <line x1="-14" y1="-18" x2="-14" y2="18" stroke="#1e293b" stroke-width="2.5"/>
+                        <line x1="-5" y1="-10" x2="-5" y2="10" stroke="#1e293b" stroke-width="4.5"/>
+                        <line x1="-5" y1="0" x2="5" y2="0" stroke="#64748b" stroke-width="2" stroke-dasharray="2,2"/>
+                        <line x1="5" y1="-18" x2="5" y2="18" stroke="#1e293b" stroke-width="2.5"/>
+                        <line x1="14" y1="-10" x2="14" y2="10" stroke="#1e293b" stroke-width="4.5"/>
+                    </g>
+                    <text x="${rot === 90 ? -24 : -22}" y="${rot === 90 ? -12 : -20}" text-anchor="middle" fill="#dc2626" font-weight="bold" font-size="14" paint-order="stroke fill" stroke="#ffffff" stroke-width="3px">+</text>
+                    <text x="${rot === 90 ? 24 : 22}" y="${rot === 90 ? -12 : -20}" text-anchor="middle" fill="#2563eb" font-weight="bold" font-size="14" paint-order="stroke fill" stroke="#ffffff" stroke-width="3px">-</text>
+                    ${label ? `<text x="0" y="32" text-anchor="middle" fill="#475569" font-size="12" font-weight="600" paint-order="stroke fill" stroke="#ffffff" stroke-width="3px">${label}</text>` : ''}
+                </g>
+            `;
+        }
+
+        // Switch Symbol: Open or Closed
+        function drawSwitch(x, y, rot, isOpen, label) {
+            const lever = isOpen
+                ? `<line x1="-14" y1="0" x2="10" y2="-18" stroke="#0284c7" stroke-width="3" stroke-linecap="round"/>`
+                : `<line x1="-14" y1="0" x2="14" y2="0" stroke="#16a34a" stroke-width="3" stroke-linecap="round"/>`;
+
+            return `
+                <g transform="translate(${x}, ${y})">
+                    <g transform="rotate(${rot})">
+                        <rect x="-24" y="-22" width="48" height="30" fill="#ffffff" stroke="none"/>
+                        <line x1="-30" y1="0" x2="-14" y2="0" stroke="#334155" stroke-width="3"/>
+                        <line x1="14" y1="0" x2="30" y2="0" stroke="#334155" stroke-width="3"/>
+                        <circle cx="-14" cy="0" r="4" fill="#1e293b"/>
+                        <circle cx="14" cy="0" r="4" fill="#1e293b"/>
+                        ${lever}
+                    </g>
+                    ${label ? `<text x="0" y="${rot === 90 ? -22 : -22}" text-anchor="middle" fill="#334155" font-weight="600" font-size="13" paint-order="stroke fill" stroke="#ffffff" stroke-width="3px">${label} (${isOpen ? 'Open' : 'Closed'})</text>` : ''}
+                </g>
+            `;
+        }
+
+        // Ammeter Symbol: Circle with 'A'
+        function drawAmmeter(x, y, rot, label) {
+            return `
+                <g transform="translate(${x}, ${y})">
+                    <g transform="rotate(${rot})">
+                        <circle cx="0" cy="0" r="18.5" fill="#ffffff" stroke="none"/>
+                        <line x1="-30" y1="0" x2="-18" y2="0" stroke="#334155" stroke-width="3"/>
+                        <line x1="18" y1="0" x2="30" y2="0" stroke="#334155" stroke-width="3"/>
+                        <circle cx="0" cy="0" r="18" stroke="#1e293b" stroke-width="2.5" fill="#ffffff"/>
+                    </g>
+                    <text x="0" y="6" text-anchor="middle" fill="#0284c7" font-weight="bold" font-size="16">A</text>
+                    ${label ? `<text x="0" y="-24" text-anchor="middle" fill="#334155" font-weight="600" font-size="13" paint-order="stroke fill" stroke="#ffffff" stroke-width="3px">${label}</text>` : ''}
+                </g>
+            `;
+        }
+
+        // Voltmeter Symbol: Circle with 'V'
+        function drawVoltmeter(x, y, rot, label) {
+            return `
+                <g transform="translate(${x}, ${y})">
+                    <g transform="rotate(${rot})">
+                        <circle cx="0" cy="0" r="18.5" fill="#ffffff" stroke="none"/>
+                        <line x1="-30" y1="0" x2="-18" y2="0" stroke="#334155" stroke-width="3"/>
+                        <line x1="18" y1="0" x2="30" y2="0" stroke="#334155" stroke-width="3"/>
+                        <circle cx="0" cy="0" r="18" stroke="#1e293b" stroke-width="2.5" fill="#ffffff"/>
+                    </g>
+                    <text x="0" y="6" text-anchor="middle" fill="#7c3aed" font-weight="bold" font-size="16">V</text>
+                    ${label ? `<text x="0" y="-24" text-anchor="middle" fill="#334155" font-weight="600" font-size="13" paint-order="stroke fill" stroke="#ffffff" stroke-width="3px">${label}</text>` : ''}
+                </g>
+            `;
+        }
+
+        // Resistor Symbol: Rectangular box
+        function drawResistor(x, y, rot, label) {
+            return `
+                <g transform="translate(${x}, ${y})">
+                    <g transform="rotate(${rot})">
+                        <rect x="-18.5" y="-9.5" width="37" height="19" fill="#ffffff" stroke="none"/>
+                        <line x1="-30" y1="0" x2="-18" y2="0" stroke="#334155" stroke-width="3"/>
+                        <line x1="18" y1="0" x2="30" y2="0" stroke="#334155" stroke-width="3"/>
+                        <rect x="-18" y="-9" width="36" height="18" stroke="#1e293b" stroke-width="2.5" fill="#ffffff"/>
+                    </g>
+                    ${label ? `<text x="0" y="-22" text-anchor="middle" fill="#334155" font-weight="600" font-size="13" paint-order="stroke fill" stroke="#ffffff" stroke-width="3px">${label}</text>` : ''}
+                </g>
+            `;
+        }
+
+        // Rheostat Symbol: Resistor with diagonal arrow
+        function drawRheostat(x, y, rot, label) {
+            return `
+                <g transform="translate(${x}, ${y})">
+                    <g transform="rotate(${rot})">
+                        <rect x="-18.5" y="-15" width="37" height="30" fill="#ffffff" stroke="none"/>
+                        <line x1="-30" y1="0" x2="-18" y2="0" stroke="#334155" stroke-width="3"/>
+                        <line x1="18" y1="0" x2="30" y2="0" stroke="#334155" stroke-width="3"/>
+                        <rect x="-18" y="-9" width="36" height="18" stroke="#1e293b" stroke-width="2.5" fill="#ffffff"/>
+                        <line x1="-12" y1="-14" x2="12" y2="14" stroke="#2563eb" stroke-width="2.2"/>
+                        <polygon points="12,14 5,11 10,6" fill="#2563eb"/>
+                    </g>
+                    ${label ? `<text x="0" y="${rot === 90 ? -24 : -22}" text-anchor="middle" fill="#334155" font-weight="600" font-size="13" paint-order="stroke fill" stroke="#ffffff" stroke-width="3px">${label}</text>` : ''}
+                </g>
+            `;
+        }
+
+        function drawJunction(x, y) {
+            return `<circle cx="${x}" cy="${y}" r="4" fill="#1e293b" />`;
+        }
+
+        /**
+         * Question Pool with diverse circuit topologies
+         * Categorized into tiers: Easy (1-3), Medium (4-7), Hard (8-10).
+         * Every play dynamically shuffles from this pool to create a unique 10-question sequence.
+         */
+        const questionPool = [
+            // --- TIER 1: EASY / BEGINNER ---
+            {
+                tier: 1,
+                level: "Level 1 • Basic Circuit",
+                title: "Will light bulb X light up when Switch S is OPEN?",
+                correctAnswer: false,
+                explanation: "Switch S is open, creating a physical gap in the circuit. Electric current cannot flow across an open gap, so Bulb X stays dark.",
+                renderSVG: (isLit) => `
+                    <svg class="circuit-svg" viewBox="0 0 600 300">
+                        <path d="M 140,60 L 460,60 L 460,240 L 140,240 Z" fill="none" stroke="#334155" stroke-width="3"/>
+                        ${drawCell(300, 60, 0, "Cell")}
+                        ${drawBulb(460, 150, 90, true, "", isLit)}
+                        ${drawSwitch(300, 240, 0, true, "Switch S")}
+                    </svg>
+                `
+            },
+            {
+                tier: 1,
+                level: "Level 2 • Closed Loop",
+                title: "Will light bulb X light up when Switch S is CLOSED?",
+                correctAnswer: true,
+                explanation: "The switch is closed, creating a complete conducting path from the positive terminal to the negative terminal. Current flows and Bulb X lights up!",
+                renderSVG: (isLit) => `
+                    <svg class="circuit-svg" viewBox="0 0 600 300">
+                        <path d="M 120,50 L 480,50 L 480,250 L 120,250 Z" fill="none" stroke="#334155" stroke-width="3"/>
+                        ${drawBattery(300, 50, 0, "Battery")}
+                        ${drawBulb(300, 250, 0, true, "", isLit)}
+                        ${drawSwitch(120, 150, 90, false, "Switch S")}
+                    </svg>
+                `
+            },
+            {
+                tier: 1,
+                level: "Level 3 • Series Connection",
+                title: "Bulb A and Bulb X are in series with Switch S CLOSED. Will Bulb X light up?",
+                correctAnswer: true,
+                explanation: "Both bulbs are connected in a single series loop. When the switch is closed, electric current flows sequentially through both Bulb A and Bulb X.",
+                renderSVG: (isLit) => `
+                    <svg class="circuit-svg" viewBox="0 0 600 320">
+                        <path d="M 100,60 L 500,60 L 500,260 L 100,260 Z" fill="none" stroke="#334155" stroke-width="3"/>
+                        ${drawCell(300, 60, 0, "Cell")}
+                        ${drawBulb(500, 160, 90, false, "Bulb A", isLit)}
+                        ${drawBulb(300, 260, 0, true, "", isLit)}
+                        ${drawSwitch(100, 160, 90, false, "Switch S")}
+                    </svg>
+                `
+            },
+
+            // --- TIER 2: INTERMEDIATE ---
+            {
+                tier: 2,
+                level: "Level 4 • Parallel Branching",
+                title: "Switch S1 in Branch 1 is OPEN. Will Bulb X in Branch 2 light up?",
+                correctAnswer: true,
+                explanation: "Bulb X is in an independent parallel branch. Opening S1 only stops current in Branch 1; current still flows through Branch 2 to Bulb X.",
+                renderSVG: (isLit) => `
+                    <svg class="circuit-svg" viewBox="0 0 600 340">
+                        <path d="M 80,60 L 520,60 L 520,280 L 80,280 Z" fill="none" stroke="#334155" stroke-width="3"/>
+                        <line x1="300" y1="60" x2="300" y2="280" stroke="#334155" stroke-width="3"/>
+                        ${drawJunction(300, 60)}
+                        ${drawJunction(300, 280)}
+                        ${drawBattery(190, 60, 0, "Battery")}
+                        ${drawBulb(300, 130, 90, false, "Bulb A", false)}
+                        ${drawSwitch(300, 220, 90, true, "Switch S1")}
+                        ${drawBulb(520, 170, 90, true, "", isLit)}
+                        ${drawSwitch(80, 170, 90, false, "Main Switch")}
+                    </svg>
+                `
+            },
+            {
+                tier: 2,
+                level: "Level 5 • Series Voltmeter",
+                title: "A Voltmeter is connected in SERIES with Bulb X. Will Bulb X light up?",
+                correctAnswer: false,
+                explanation: "Voltmeters have extremely high internal resistance to prevent taking current away from circuits. When placed in series, it acts like an open switch and blocks current flow.",
+                renderSVG: (isLit) => `
+                    <svg class="circuit-svg" viewBox="0 0 600 320">
+                        <path d="M 120,60 L 480,60 L 480,260 L 120,260 Z" fill="none" stroke="#334155" stroke-width="3"/>
+                        ${drawCell(300, 60, 0, "Cell")}
+                        ${drawVoltmeter(480, 160, 90, "Voltmeter V")}
+                        ${drawBulb(300, 260, 0, true, "", isLit)}
+                        ${drawSwitch(120, 160, 90, false, "Switch S")}
+                    </svg>
+                `
+            },
+            {
+                tier: 2,
+                level: "Level 6 • Main Switch Control",
+                title: "The MAIN Switch on the main trunk is OPEN. Will Bulb X light up?",
+                correctAnswer: false,
+                explanation: "The main switch is located right next to the battery before the circuit splits. Opening it breaks the entire circuit loop, so no current can reach any parallel branch.",
+                renderSVG: (isLit) => `
+                    <svg class="circuit-svg" viewBox="0 0 600 340">
+                        <path d="M 100,280 L 100,60 L 500,60 L 500,280 L 100,280 Z" fill="none" stroke="#334155" stroke-width="3"/>
+                        <line x1="320" y1="60" x2="320" y2="280" stroke="#334155" stroke-width="3"/>
+                        ${drawJunction(320, 60)}
+                        ${drawJunction(320, 280)}
+                        ${drawBattery(210, 60, 0, "Battery")}
+                        ${drawSwitch(100, 170, 90, true, "Main Switch")}
+                        ${drawBulb(320, 130, 90, false, "Bulb A", false)}
+                        ${drawSwitch(320, 220, 90, false, "S2")}
+                        ${drawBulb(500, 170, 90, true, "", isLit)}
+                    </svg>
+                `
+            },
+            {
+                tier: 2,
+                level: "Level 7 • Ammeter & Resistor",
+                title: "An Ammeter and Resistor are in series with Bulb X (Switch CLOSED). Will Bulb X light up?",
+                correctAnswer: true,
+                explanation: "An Ammeter has almost zero resistance and allows current to pass freely. The resistor limits current magnitude but maintains a closed loop. Bulb X lights up!",
+                renderSVG: (isLit) => `
+                    <svg class="circuit-svg" viewBox="0 0 600 320">
+                        <path d="M 100,60 L 500,60 L 500,260 L 100,260 Z" fill="none" stroke="#334155" stroke-width="3"/>
+                        ${drawBattery(200, 60, 0, "Battery")}
+                        ${drawAmmeter(380, 60, 0, "Ammeter A")}
+                        ${drawBulb(500, 160, 90, true, "", isLit)}
+                        ${drawResistor(300, 260, 0, "Resistor R")}
+                        ${drawSwitch(100, 160, 90, false, "Switch S")}
+                    </svg>
+                `
+            },
+
+            // --- TIER 3: ADVANCED / MASTER ---
+            {
+                tier: 3,
+                level: "Level 8 • Short Circuit Bypass",
+                title: "Switch S2 across Bulb X is CLOSED (S1 CLOSED). Will Bulb X light up?",
+                correctAnswer: false,
+                explanation: "Closing S2 creates a zero-resistance wire path directly around Bulb X. Current takes the path of negligible resistance, short-circuiting Bulb X so it remains unlit!",
+                renderSVG: (isLit) => `
+                    <svg class="circuit-svg" viewBox="0 0 600 340">
+                        <path d="M 100,60 L 380,60 L 380,280 L 100,280 Z" fill="none" stroke="#334155" stroke-width="3"/>
+                        <path d="M 380,100 L 500,100 L 500,240 L 380,240" fill="none" stroke="#334155" stroke-width="3"/>
+                        ${drawJunction(380, 100)}
+                        ${drawJunction(380, 240)}
+                        ${drawBattery(240, 60, 0, "Battery")}
+                        ${drawSwitch(100, 170, 90, false, "S1")}
+                        ${drawBulb(380, 170, 90, true, "", isLit)}
+                        ${drawSwitch(500, 170, 90, false, "Shorting Switch S2")}
+                        ${drawResistor(240, 280, 0, "Resistor R")}
+                    </svg>
+                `
+            },
+            {
+                tier: 3,
+                level: "Level 9 • Rheostat Variable Control",
+                title: "Rheostat is set to high resistance with Switch S CLOSED. Will Bulb X light up?",
+                correctAnswer: true,
+                explanation: "A Rheostat changes current magnitude, but it does NOT break the circuit path. Current still flows through Bulb X (though dimmer under high resistance). Bulb X lights up!",
+                renderSVG: (isLit) => `
+                    <svg class="circuit-svg" viewBox="0 0 600 320">
+                        <path d="M 100,60 L 500,60 L 500,260 L 100,260 Z" fill="none" stroke="#334155" stroke-width="3"/>
+                        ${drawBattery(200, 60, 0, "Battery")}
+                        ${drawRheostat(380, 60, 0, "Rheostat")}
+                        ${drawBulb(500, 160, 90, true, "", isLit)}
+                        ${drawSwitch(300, 260, 0, false, "Switch S")}
+                        ${drawAmmeter(100, 160, 90, "Ammeter A")}
+                    </svg>
+                `
+            },
+            {
+                tier: 3,
+                level: "Level 10 • Master Network",
+                title: "Main Switch S1 CLOSED, Branch Switch S2 OPEN, Voltmeter V in parallel. Will Bulb X light up?",
+                correctAnswer: true,
+                explanation: "S1 establishes a complete loop through Branch 1 (Bulb X + Rheostat). The Voltmeter is correctly connected in PARALLEL to measure potential difference without blocking main current. Open S2 only affects Branch 2. Bulb X lights up!",
+                renderSVG: (isLit) => `
+                    <svg class="circuit-svg" viewBox="0 0 600 360">
+                        <path d="M 80,60 L 340,60 L 340,300 L 80,300 Z" fill="none" stroke="#334155" stroke-width="3"/>
+                        <path d="M 340,110 L 220,110 L 220,210 L 340,210" fill="none" stroke="#334155" stroke-width="2.5" stroke-dasharray="6,4"/>
+                        <path d="M 340,60 L 500,60 L 500,300 L 340,300" fill="none" stroke="#334155" stroke-width="3"/>
+                        ${drawJunction(340, 60)}
+                        ${drawJunction(340, 300)}
+                        ${drawJunction(340, 110)}
+                        ${drawJunction(340, 210)}
+                        ${drawBattery(210, 60, 0, "Battery")}
+                        ${drawSwitch(80, 180, 90, false, "S1")}
+                        ${drawBulb(340, 160, 90, true, "", isLit)}
+                        ${drawVoltmeter(220, 160, 90, "V")}
+                        ${drawRheostat(340, 260, 90, "Rheostat")}
+                        ${drawSwitch(500, 130, 90, true, "S2")}
+                        ${drawBulb(500, 230, 90, false, "Bulb Y", false)}
+                    </svg>
+                `
+            }
+        ];
+
+        let quizQuestions = [];
+        let currentQuestionIndex = 0;
+        let userScore = 0;
+        let userAnswers = [];
+
+        // Utility: Fisher-Yates array shuffle
+        function shuffleArray(array) {
+            const arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        // Generate a fresh, progressive 10-question set for each game
+        function generateRandomQuizSet() {
+            const tier1 = shuffleArray(questionPool.filter(q => q.tier === 1));
+            const tier2 = shuffleArray(questionPool.filter(q => q.tier === 2));
+            const tier3 = shuffleArray(questionPool.filter(q => q.tier === 3));
+
+            // Select progressive balance: 3 Easy, 4 Medium, 3 Hard
+            const selected = [
+                ...tier1.slice(0, 3),
+                ...tier2.slice(0, 4),
+                ...tier3.slice(0, 3)
+            ];
+
+            return selected;
+        }
+
+        // DOM Element references
+        const questionNumText = document.getElementById("questionNumText");
+        const scoreTrackerText = document.getElementById("scoreTrackerText");
+        const progressBarFill = document.getElementById("progressBarFill");
+        const levelBadge = document.getElementById("levelBadge");
+        const questionText = document.getElementById("questionText");
+        const canvasContainer = document.getElementById("canvasContainer");
+        const btnYes = document.getElementById("btnYes");
+        const btnNo = document.getElementById("btnNo");
+        const feedbackBox = document.getElementById("feedbackBox");
+        const feedbackHeader = document.getElementById("feedbackHeader");
+        const feedbackIcon = document.getElementById("feedbackIcon");
+        const feedbackTitle = document.getElementById("feedbackTitle");
+        const feedbackText = document.getElementById("feedbackText");
+        const btnNext = document.getElementById("btnNext");
+        
+        const quizCard = document.getElementById("quizCard");
+        const resultsCard = document.getElementById("resultsCard");
+        const finalScoreNum = document.getElementById("finalScoreNum");
+        const performanceBadge = document.getElementById("performanceBadge");
+        const performanceComment = document.getElementById("performanceComment");
+        const reviewList = document.getElementById("reviewList");
+        const btnRestart = document.getElementById("btnRestart");
+
+        const symbolsBtn = document.getElementById("symbolsBtn");
+        const symbolsModal = document.getElementById("symbolsModal");
+        const closeModalBtn = document.getElementById("closeModalBtn");
+        const symbolsGrid = document.getElementById("symbolsGrid");
+
+        function startNewQuiz() {
+            quizQuestions = generateRandomQuizSet();
+            currentQuestionIndex = 0;
+            userScore = 0;
+            userAnswers = [];
+            
+            resultsCard.style.display = "none";
+            document.getElementById("progressCard").style.display = "flex";
+            quizCard.style.display = "flex";
+            
+            loadQuestion(0);
+        }
+
+        function loadQuestion(index) {
+            const q = quizQuestions[index];
+
+            // Update Progress Header
+            questionNumText.textContent = `Question ${index + 1} of ${quizQuestions.length}`;
+            scoreTrackerText.textContent = `Score: ${userScore} / ${quizQuestions.length}`;
+            progressBarFill.style.width = `${((index + 1) / quizQuestions.length) * 100}%`;
+
+            // Update Question Details
+            levelBadge.textContent = q.level;
+            questionText.textContent = q.title;
+
+            // Render SVG Diagram (Initially unlit)
+            canvasContainer.innerHTML = q.renderSVG(false);
+
+            // Reset UI States
+            btnYes.disabled = false;
+            btnNo.disabled = false;
+            feedbackBox.style.display = "none";
+            feedbackBox.className = "feedback-box";
+        }
+
+        function handleAnswer(selectedYes) {
+            const q = quizQuestions[currentQuestionIndex];
+            const isCorrect = (selectedYes === q.correctAnswer);
+
+            // Disable buttons
+            btnYes.disabled = true;
+            btnNo.disabled = true;
+
+            // Update SVG circuit simulation result
+            canvasContainer.innerHTML = q.renderSVG(q.correctAnswer);
+
+            if (isCorrect) {
+                userScore++;
+                scoreTrackerText.textContent = `Score: ${userScore} / ${quizQuestions.length}`;
+                feedbackBox.className = "feedback-box correct";
+                feedbackIcon.textContent = "🎉";
+                feedbackTitle.textContent = "Correct Answer!";
+            } else {
+                feedbackBox.className = "feedback-box incorrect";
+                feedbackIcon.textContent = "❌";
+                feedbackTitle.textContent = `Incorrect! The correct answer was ${q.correctAnswer ? "YES" : "NO"}.`;
+            }
+
+            feedbackText.textContent = q.explanation;
+            feedbackBox.style.display = "flex";
+
+            userAnswers.push({
+                questionId: q.title,
+                title: q.title,
+                userChoice: selectedYes,
+                correctChoice: q.correctAnswer,
+                isCorrect: isCorrect,
+                explanation: q.explanation
+            });
+
+            if (currentQuestionIndex === quizQuestions.length - 1) {
+                btnNext.textContent = "View Final Results 🏆";
+            } else {
+                btnNext.textContent = "Next Question ➔";
+            }
+        }
+
+        function showResults() {
+            quizCard.style.display = "none";
+            document.getElementById("progressCard").style.display = "none";
+            resultsCard.style.display = "flex";
+
+            finalScoreNum.textContent = userScore;
+
+            if (userScore === 10) {
+                performanceBadge.textContent = "🏆 Master Electrical Engineer!";
+                performanceComment.textContent = "Perfect score! You have a flawless grasp of circuit symbols, series/parallel rules, and potential difference!";
+            } else if (userScore >= 8) {
+                performanceBadge.textContent = "⚡ Senior Circuit Analyst!";
+                performanceComment.textContent = "Excellent work! You understand circuit logic and standard physics symbols very well.";
+            } else if (userScore >= 6) {
+                performanceBadge.textContent = "💡 Junior Science Apprentice!";
+                performanceComment.textContent = "Good effort! Review short circuit paths and voltmeter placement rules to boost your score.";
+            } else {
+                performanceBadge.textContent = "📚 Keep Practicing!";
+                performanceComment.textContent = "Don't worry! Use the Symbols Legend and review open/closed circuit rules to try again.";
+            }
+
+            reviewList.innerHTML = userAnswers.map((item, idx) => `
+                <div class="review-item ${item.isCorrect ? 'is-correct' : 'is-wrong'}">
+                    <div class="review-item-header">
+                        <span>Q${idx + 1}: ${item.title}</span>
+                        <span>${item.isCorrect ? '✓ Correct (+1)' : '✗ Incorrect'}</span>
+                    </div>
+                    <div class="review-item-desc">
+                        <b>Your Answer:</b> ${item.userChoice ? 'YES' : 'NO'} | 
+                        <b>Correct Answer:</b> ${item.correctChoice ? 'YES' : 'NO'}
+                        <br>
+                        <em>${item.explanation}</em>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function loadSymbolsLegend() {
+            const symbolsData = [
+                {
+                    name: "Cell",
+                    svg: drawCell(40, 30, 0, ""),
+                    desc: "Provides electrical energy. Long thin line is Positive (+), short thick line is Negative (-)."
+                },
+                {
+                    name: "Battery",
+                    svg: drawBattery(40, 30, 0, ""),
+                    desc: "Two or more cells connected in series to supply higher electric voltage."
+                },
+                {
+                    name: "Light Bulb",
+                    svg: drawBulb(40, 30, 0, false, "", true),
+                    desc: "IEC standard indicator lamp symbol: Circle with internal filament loop."
+                },
+                {
+                    name: "Switch (Open / Closed)",
+                    svg: drawSwitch(40, 30, 0, true, ""),
+                    desc: "Controls whether current can flow. Open switch breaks circuit; closed switch completes circuit."
+                },
+                {
+                    name: "Ammeter",
+                    svg: drawAmmeter(40, 30, 0, ""),
+                    desc: "Measures electric current in Amperes (A). Always connected in SERIES (Very LOW resistance)."
+                },
+                {
+                    name: "Voltmeter",
+                    svg: drawVoltmeter(40, 30, 0, ""),
+                    desc: "Measures voltage/potential difference in Volts (V). Always connected in PARALLEL (Very HIGH resistance)."
+                },
+                {
+                    name: "Resistor",
+                    svg: drawResistor(40, 30, 0, ""),
+                    desc: "Rectangular box symbol. Opposes the flow of electric current in a circuit."
+                },
+                {
+                    name: "Rheostat",
+                    svg: drawRheostat(40, 30, 0, ""),
+                    desc: "Variable resistor with diagonal arrow. Adjusts current magnitude or bulb brightness."
+                }
+            ];
+
+            symbolsGrid.innerHTML = symbolsData.map(s => `
+                <div class="symbol-card">
+                    <div class="symbol-svg-preview">
+                        <svg viewBox="0 0 80 60" style="width: 100%; height: 100%;">
+                            ${s.svg}
+                        </svg>
+                    </div>
+                    <div class="symbol-info">
+                        <h4>${s.name}</h4>
+                        <p>${s.desc}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        btnYes.addEventListener("click", () => handleAnswer(true));
+        btnNo.addEventListener("click", () => handleAnswer(false));
+
+        btnNext.addEventListener("click", () => {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < quizQuestions.length) {
+                loadQuestion(currentQuestionIndex);
+            } else {
+                showResults();
+            }
+        });
+
+        btnRestart.addEventListener("click", () => {
+            startNewQuiz();
+        });
+
+        // Symbols Legend Modal Handlers
+        symbolsBtn.addEventListener("click", () => {
+            loadSymbolsLegend();
+            symbolsModal.style.display = "flex";
+        });
+
+        closeModalBtn.addEventListener("click", () => {
+            symbolsModal.style.display = "none";
+        });
+
+        symbolsModal.addEventListener("click", (e) => {
+            if (e.target === symbolsModal) {
+                symbolsModal.style.display = "none";
+            }
+        });
+
+        // Initialize First Quiz on Page Load
+        window.onload = function() {
+            startNewQuiz();
+        };
+    </script>
+</body>
+</html>
